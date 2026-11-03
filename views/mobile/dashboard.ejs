@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('partials/head') %>
+</head>
+<body class="mobile-body">
+  <%- include('partials/topbar') %>
+  <main class="mobile-main">
+    <h1 class="mobile-page-title">Dashboard</h1>
+    <p class="mobile-page-sub">Today: <%= today %></p>
+
+    <div class="mobile-stat-grid">
+      <div class="mobile-stat">
+        <div class="mobile-stat-label">Active Students</div>
+        <div class="mobile-stat-value"><%= stats.activeStudents %></div>
+      </div>
+      <div class="mobile-stat">
+        <div class="mobile-stat-label">Present</div>
+        <div class="mobile-stat-value success"><%= stats.presentToday %></div>
+      </div>
+      <div class="mobile-stat">
+        <div class="mobile-stat-label">Absent</div>
+        <div class="mobile-stat-value danger"><%= stats.absentToday %></div>
+      </div>
+      <div class="mobile-stat">
+        <div class="mobile-stat-label">Fee (Month)</div>
+        <div class="mobile-stat-value"><%= stats.feeMonth.toLocaleString() %></div>
+      </div>
+      <div class="mobile-stat full">
+        <div class="mobile-stat-label">Outstanding Balance</div>
+        <div class="mobile-stat-value danger">PKR <%= stats.outstanding.toLocaleString() %></div>
+      </div>
+    </div>
+
+    <h2 class="mobile-section-title">Recent Notifications</h2>
+    <% if (recentNotifications.length === 0) { %>
+      <div class="mobile-empty">No notifications.</div>
+    <% } else { %>
+      <div class="mobile-list">
+        <% recentNotifications.forEach(n => { %>
+          <div class="mobile-list-item">
+            <div class="mobile-list-title"><%= n.type %></div>
+            <div class="mobile-list-sub"><%= n.message %></div>
+            <div class="mobile-list-time"><%= n.created_at.slice(0, 16).replace('T', ' ') %></div>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+  </main>
+  <%- include('partials/bottom-nav') %>
+  <script src="/js/pwa-register.js"></script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body class="app-body">
+  <%- include('../partials/sidebar') %>
+  <div class="main-area">
+    <%- include('../partials/navbar') %>
+    <main class="content">
+      <% if (flash) { %>
+        <div class="alert-<%= flash.type %>"><%= flash.message %></div>
+      <% } %>
+
+      <div class="page-header-row">
+        <div>
+          <h1 class="page-title">Students</h1>
+          <p class="page-sub">Total: <%= pagination.total %> student(s)</p>
+        </div>
+        <a href="/admissions/new" class="btn-primary" style="width:auto">+ New Admission</a>
+      </div>
+
+      <form method="GET" action="/students" class="filter-bar">
+        <input type="text" name="search" placeholder="Search name, father name, roll no"
+               value="<%= filters.search %>" style="flex:1">
+        <select name="batch">
+          <option value="">All Batches</option>
+          <% batches.forEach(b => { %>
+            <option value="<%= b.id %>" <%= filters.batchId === b.id ? 'selected' : '' %>><%= b.name %></option>
+          <% }) %>
+        </select>
+        <select name="status">
+          <option value="">All Status</option>
+          <option value="active" <%= filters.status === 'active' ? 'selected' : '' %>>Active</option>
+          <option value="inactive" <%= filters.status === 'inactive' ? 'selected' : '' %>>Inactive</option>
+        </select>
+        <button type="submit" class="btn-secondary">Filter</button>
+        <a href="/students" class="btn-link">Reset</a>
+      </form>
+
+      <% if (students.length === 0) { %>
+        <div class="empty-state">
+          <p>No students found.</p>
+          <a href="/admissions/new" class="btn-primary" style="width:auto">Create First Admission</a>
+        </div>
+      <% } else { %>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Roll No</th>
+                <th>Name</th>
+                <th>Father Name</th>
+                <th>Batch</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% students.forEach(s => { %>
+                <tr>
+                  <td><code><%= s.roll_no %></code></td>
+                  <td><a href="/students/<%= s.id %>"><%= s.name %></a></td>
+                  <td><%= s.father_name %></td>
+                  <td>
+                    <% if (s.batch_name) { %><%= s.batch_name %>
+                    <% } else { %><span class="muted">Unassigned</span><% } %>
+                  </td>
+                  <td>
+                    <span class="badge <%= s.status === 'active' ? 'badge-success' : 'badge-muted' %>">
+                      <%= s.status %>
+                    </span>
+                  </td>
+                  <td class="table-actions">
+                    <a href="/students/<%= s.id %>" class="btn-link">View</a>
+                    <a href="/students/<%= s.id %>/edit" class="btn-link">Edit</a>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+
+        <% if (pagination.totalPages > 1) { %>
+          <div class="pagination">
+            <% for (let i = 1; i <= pagination.totalPages; i++) { %>
+              <a href="/students?page=<%= i %>&search=<%= encodeURIComponent(filters.search) %>&batch=<%= filters.batchId || '' %>&status=<%= filters.status %>"
+                 class="page-link <%= i === pagination.page ? 'active' : '' %>"><%= i %></a>
+            <% } %>
+          </div>
+        <% } %>
+      <% } %>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title><%= title %></title><link rel="stylesheet" href="/css/app.css"></head>
+<body class="app-body">
+  <%- include('../partials/sidebar') %>
+  <div class="main-area"><%- include('../partials/navbar') %>
+    <main class="content">
+      <% if (flash) { %><div class="alert-<%= flash.type %>"><%= flash.message %></div><% } %>
+
+      <div class="page-header-row">
+        <div>
+          <h1 class="page-title">Holiday Calendar</h1>
+          <p class="page-sub">Manage academy holidays and special working sessions.</p>
+        </div>
+        <% if (isAdmin) { %>
+          <a href="/holidays/new" class="btn-primary" style="width:auto">+ New Holiday</a>
+        <% } %>
+      </div>
+
+      <form method="GET" action="/holidays" class="filter-bar">
+        <input type="date" name="from" value="<%= filters.from %>" placeholder="From">
+        <input type="date" name="to" value="<%= filters.to %>" placeholder="To">
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px">
+          <input type="checkbox" name="include_cancelled" value="1" <%= filters.includeCancelled ? 'checked' : '' %>>
+          Include cancelled
+        </label>
+        <button type="submit" class="btn-secondary">Filter</button>
+        <a href="/holidays" class="btn-link">Reset</a>
+      </form>
+
+      <% if (holidays.length === 0) { %>
+        <div class="empty-state"><p>No holidays found.</p></div>
+      <% } else { %>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr>
+              <th>Title</th><th>Date Range</th><th>Type</th><th>Batches</th><th>Status</th><th>Created By</th><th></th>
+            </tr></thead>
+            <tbody>
+              <% holidays.forEach(h => { %>
+                <tr>
+                  <td><strong><%= h.title %></strong><% if (h.reason) { %><div class="muted" style="font-size:12px"><%= h.reason %></div><% } %></td>
+                  <td><%= h.start_date %><% if (h.start_date !== h.end_date) { %> → <%= h.end_date %><% } %></td>
+                  <td><% if (h.is_full_day) { %>Full day<% } else { %>Partial: <%= h.partial_start %> – <%= h.partial_end %><% } %></td>
+                  <td><%= h.affected_batches || '—' %></td>
+                  <td><span class="badge <%= h.is_cancelled ? 'badge-muted' : 'badge-success' %>"><%= h.is_cancelled ? 'cancelled' : 'active' %></span></td>
+                  <td><%= h.created_by_name || '—' %></td>
+                  <td class="table-actions">
+                    <% if (isAdmin && !h.is_cancelled) { %>
+                      <a href="/holidays/<%= h.id %>/edit" class="btn-link">Edit</a>
+                      <form method="POST" action="/holidays/<%= h.id %>/cancel" style="display:inline" onsubmit="return confirm('Cancel this holiday? Affected sessions will revert to scheduled.')">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                        <button type="submit" class="btn-link" style="background:none;border:none;cursor:pointer;color:#DC4545;padding:0">Cancel</button>
+                      </form>
+                    <% } %>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      <% } %>
+    </main>
+  </div>
+</body></html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title><%= title %></title><link rel="stylesheet" href="/css/app.css"></head>
+<body class="app-body">
+  <%- include('../partials/sidebar') %>
+  <div class="main-area"><%- include('../partials/navbar') %>
+    <main class="content">
+      <% if (flash) { %><div class="alert-<%= flash.type %>"><%= flash.message %></div><% } %>
+      <div class="page-header-row">
+        <div><h1 class="page-title">Homework & Assignments</h1><p class="page-sub"><%= assignments.length %> assignment(s)</p></div>
+        <a href="/assignments/new" class="btn-primary" style="width:auto">+ New Assignment</a>
+      </div>
+      <form method="GET" action="/assignments" class="filter-bar">
+        <select name="batch"><option value="">All Batches</option>
+          <% batches.forEach(b => { %><option value="<%= b.id %>" <%= filters.batchId===b.id?'selected':'' %>><%= b.name %></option><% }) %></select>
+        <button type="submit" class="btn-secondary">Filter</button>
+        <a href="/assignments" class="btn-link">Reset</a>
+      </form>
+      <% if (assignments.length === 0) { %><div class="empty-state"><p>No assignments yet.</p></div>
+      <% } else { %>
+        <div class="table-wrap"><table class="data-table">
+          <thead><tr><th>Title</th><th>Batch</th><th>Assigned</th><th>Due</th><th>Submitted</th><th>Pending</th><th></th></tr></thead>
+          <tbody>
+            <% assignments.forEach(a => { %><tr>
+              <td><a href="/assignments/<%= a.id %>"><%= a.title %></a></td>
+              <td><%= a.batch_name %></td>
+              <td><%= a.assigned_date %></td>
+              <td><%= a.due_date || '—' %></td>
+              <td><span class="badge badge-success"><%= a.submitted_count %></span></td>
+              <td><span class="badge badge-muted"><%= a.pending_count %></span></td>
+              <td><a href="/assignments/<%= a.id %>" class="btn-link">Open</a></td>
+            </tr><% }) %>
+          </tbody>
+        </table></div>
+      <% } %>
+    </main>
+  </div>
+</body></html>

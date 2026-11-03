@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><title><%= title %></title>
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body class="app-body">
+  <%- include('../partials/sidebar') %>
+  <div class="main-area">
+    <%- include('../partials/navbar') %>
+    <main class="content">
+      <% if (flash) { %><div class="alert-<%= flash.type %>"><%= flash.message %></div><% } %>
+      <h1 class="page-title">Student Attendance</h1>
+      <p class="page-sub">Select a batch and date to mark or view attendance.</p>
+
+      <div class="form-card">
+        <h2 style="margin-bottom:16px">Mark Attendance</h2>
+        <form method="GET" action="/attendance/mark">
+          <div class="form-group">
+            <label>Batch</label>
+            <select name="batch" required>
+              <option value="">Select batch</option>
+              <% batches.forEach(b => { %><option value="<%= b.id %>"><%= b.name %></option><% }) %>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Date</label>
+            <input type="date" name="date" value="<%= today %>" required>
+          </div>
+          <div class="form-actions"><button type="submit" class="btn-primary" style="width:auto">Open</button></div>
+        </form>
+      </div>
+
+      <div class="form-card" style="margin-top:20px">
+        <h2 style="margin-bottom:16px">View Attendance (Read-Only)</h2>
+        <form method="GET" action="/attendance/view">
+          <div class="form-group">
+            <label>Batch</label>
+            <select name="batch" required>
+              <option value="">Select batch</option>
+              <% batches.forEach(b => { %><option value="<%= b.id %>"><%= b.name %></option><% }) %>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Date</label>
+            <input type="date" name="date" value="<%= today %>" required>
+          </div>
+          <div class="form-actions"><button type="submit" class="btn-secondary">View</button></div>
+        </form>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

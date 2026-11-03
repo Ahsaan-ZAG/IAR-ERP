@@ -1,0 +1,26 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title><%= title %></title><link rel="stylesheet" href="/css/app.css"></head>
+<body class="app-body">
+  <%- include('../partials/sidebar') %>
+  <div class="main-area"><%- include('../partials/navbar') %>
+    <main class="content">
+      <% if (flash) { %><div class="alert-<%= flash.type %>"><%= flash.message %></div><% } %>
+      <div class="page-header-row">
+        <div><h1 class="page-title">User Management</h1><p class="page-sub"><%= users.length %> user(s)</p></div>
+        <a href="/users/new" class="btn-primary" style="width:auto">+ New User</a>
+      </div>
+      <div class="table-wrap"><table class="data-table">
+        <thead><tr><th>Username</th><th>Display Name</th><th>Role</th><th>Status</th><th>Last Login</th><th></th></tr></thead>
+        <tbody>
+          <% users.forEach(u => { %><tr>
+            <td><code><%= u.username %></code></td>
+            <td><a href="/users/<%= u.id %>"><%= u.display_name %></a></td>
+            <td><span class="badge badge-<%= u.role === 'admin' ? 'danger' : 'muted' %>"><%= u.role %></span></td>
+            <td><span class="badge <%= u.is_active ? 'badge-success' : 'badge-muted' %>"><%= u.is_active ? 'active' : 'inactive' %></span></td>
+            <td><%= u.last_login_at ? u.last_login_at.slice(0, 16).replace('T', ' ') : '—' %></td>
+            <td><a href="/users/<%= u.id %>" class="btn-link">Edit</a></td>
+          </tr><% }) %>
+        </tbody>
+      </table></div>
+    </main>
+  </div>
+</body></html>

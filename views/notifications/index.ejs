@@ -1,0 +1,52 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title><%= title %></title><link rel="stylesheet" href="/css/app.css"></head>
+<body class="app-body">
+  <%- include('../partials/sidebar') %>
+  <div class="main-area"><%- include('../partials/navbar') %>
+    <main class="content">
+      <% if (flash) { %><div class="alert-<%= flash.type %>"><%= flash.message %></div><% } %>
+      <div class="page-header-row">
+        <div><h1 class="page-title">Notifications</h1><p class="page-sub">In-app notifications and announcements.</p></div>
+        <form method="POST" action="/notifications/read-all">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <button type="submit" class="btn-secondary">Mark All Read</button>
+        </form>
+      </div>
+
+      <% if (user.role === 'admin') { %>
+        <details class="details-card" style="margin-bottom:20px">
+          <summary>📢 Broadcast Announcement</summary>
+          <form method="POST" action="/notifications/broadcast">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <div class="form-group"><label>Message (visible to all users)</label><textarea name="message" rows="2" required maxlength="500" style="width:100%;padding:10px;border:1px solid #E0E2E8;border-radius:8px;font-family:inherit"></textarea></div>
+            <button type="submit" class="btn-primary" style="width:auto">Send to All Users</button>
+          </form>
+        </details>
+      <% } %>
+
+      <% if (notifications.length === 0) { %><div class="empty-state"><p>No notifications.</p></div>
+      <% } else { %>
+        <div class="table-wrap"><table class="data-table">
+          <thead><tr><th>Type</th><th>Message</th><th>Date</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            <% notifications.forEach(n => { %>
+              <tr style="<%= n.is_read ? '' : 'background:#FFF8F1' %>">
+                <td><span class="badge badge-muted"><%= n.type %></span></td>
+                <td><%= n.message %></td>
+                <td><%= n.created_at.slice(0, 19).replace('T', ' ') %></td>
+                <td><span class="badge <%= n.is_read ? 'badge-muted' : 'badge-success' %>"><%= n.is_read ? 'read' : 'new' %></span></td>
+                <td>
+                  <% if (!n.is_read) { %>
+                    <form method="POST" action="/notifications/<%= n.id %>/read" style="display:inline">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                      <button type="submit" class="btn-link" style="background:none;border:none;cursor:pointer;padding:0">Mark Read</button>
+                    </form>
+                  <% } %>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table></div>
+      <% } %>
+    </main>
+  </div>
+</body></html>

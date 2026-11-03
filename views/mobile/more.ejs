@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en"><head><%- include('partials/head') %></head>
+<body class="mobile-body">
+  <%- include('partials/topbar') %>
+  <main class="mobile-main">
+    <h1 class="mobile-page-title">More</h1>
+
+    <div class="mobile-more-grid">
+      <a href="/mobile/teachers" class="mobile-more-tile"><span>Teachers</span></a>
+      <a href="/mobile/batches" class="mobile-more-tile"><span>Batches</span></a>
+      <a href="/mobile/holidays" class="mobile-more-tile"><span>Holidays</span></a>
+      <a href="/mobile/sessions" class="mobile-more-tile"><span>Sessions</span></a>
+      <a href="/mobile/payments" class="mobile-more-tile"><span>Payments</span></a>
+      <a href="/mobile/notifications" class="mobile-more-tile"><span>Notifications</span></a>
+      <a href="/mobile/reports" class="mobile-more-tile"><span>Reports</span></a>
+      <a href="/mobile/analytics" class="mobile-more-tile"><span>Analytics</span></a>
+    </div>
+
+    <p class="mobile-read-only-hint">
+      All mobile views are strictly read-only. To edit records, log in via the desktop interface at
+      <code>/login</code>.
+    </p>
+  </main>
+  <%- include('partials/bottom-nav') %>
+</body>
+</html>

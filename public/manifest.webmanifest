@@ -1,0 +1,19 @@
+{
+  "name": "Imam Ahmed Raza Academy — Management",
+  "short_name": "IARA",
+  "description": "Under the Supervision of Barkati Foundation Trust. Mobile view is read-only.",
+  "start_url": "/mobile/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F5F6FA",
+  "theme_color": "#171923",
+  "icons": [
+    {
+      "src": "/icons/ira.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

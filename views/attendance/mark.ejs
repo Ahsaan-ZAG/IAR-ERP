@@ -1,0 +1,63 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title><%= title %></title><link rel="stylesheet" href="/css/app.css"></head>
+<body class="app-body">
+  <%- include('../partials/sidebar') %>
+  <div class="main-area"><%- include('../partials/navbar') %>
+    <main class="content">
+      <% if (flash) { %><div class="alert-<%= flash.type %>"><%= flash.message %></div><% } %>
+
+      <h1 class="page-title">Mark Attendance</h1>
+      <p class="page-sub"><%= batch.name %> · <%= date %></p>
+
+      <% if (holidayInfo) { %>
+        <div class="alert-warning">
+          <strong>Holiday: <%= holidayInfo.holiday.title %></strong>
+          (<%= holidayInfo.holiday.start_date %><%= holidayInfo.holiday.start_date !== holidayInfo.holiday.end_date ? ' → ' + holidayInfo.holiday.end_date : '' %>)
+          <% if (!holidayInfo.isFullDay) { %>
+            — Partial: <%= holidayInfo.holiday.partial_start %> – <%= holidayInfo.holiday.partial_end %>
+          <% } %>
+          <br>Attendance cannot be marked on this holiday. Uncheck this batch on the holiday or use a special working session.
+        </div>
+      <% } %>
+
+      <% if (stats.total > 0) { %>
+        <div class="stat-grid">
+          <div class="stat-card"><div class="stat-label">Present</div><div class="stat-value success"><%= stats.present || 0 %></div></div>
+          <div class="stat-card"><div class="stat-label">Absent</div><div class="stat-value danger"><%= stats.absent || 0 %></div></div>
+          <div class="stat-card"><div class="stat-label">Late</div><div class="stat-value warning"><%= stats.late || 0 %></div></div>
+          <div class="stat-card"><div class="stat-label">Leave</div><div class="stat-value"><%= stats.leave_count || 0 %></div></div>
+        </div>
+      <% } %>
+
+      <% if (holidayInfo) { %>
+        <div class="empty-state"><p>No attendance to mark — this is a holiday for this batch.</p></div>
+      <% } else if (students.length === 0) { %>
+        <div class="empty-state"><p>No active students in this batch.</p></div>
+      <% } else { %>
+        <form method="POST" action="/attendance/mark">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <input type="hidden" name="batch_id" value="<%= batch.id %>">
+          <input type="hidden" name="date" value="<%= date %>">
+          <div class="table-wrap"><table class="data-table">
+            <thead><tr><th>Roll No</th><th>Name</th><th>Father</th><th>Status</th></tr></thead>
+            <tbody>
+              <% students.forEach(s => { %>
+                <tr>
+                  <td><code><%= s.roll_no %></code></td><td><%= s.name %></td><td><%= s.father_name %></td>
+                  <td><div class="status-radio-group">
+                    <% statuses.forEach(st => { %>
+                      <label class="radio-pill"><input type="radio" name="status_<%= s.id %>" value="<%= st %>" <%= (s.current_status || 'present')===st ? 'checked' : '' %>><span><%= st %></span></label>
+                    <% }) %>
+                  </div></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table></div>
+          <div class="form-actions" style="margin-top:16px">
+            <button type="submit" class="btn-primary" style="width:auto">Save Attendance</button>
+            <a href="/attendance" class="btn-link">Back</a>
+          </div>
+        </form>
+      <% } %>
+    </main>
+  </div>
+</body></html>

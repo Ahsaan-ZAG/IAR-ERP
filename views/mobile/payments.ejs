@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en"><head><%- include('partials/head') %></head>
+<body class="mobile-body">
+  <%- include('partials/topbar') %>
+  <main class="mobile-main">
+    <a href="/mobile/more" class="mobile-back">← More</a>
+    <h1 class="mobile-page-title">Payments</h1>
+
+    <div class="mobile-list">
+      <% payments.forEach(p => { %>
+        <a href="/payments/<%= p.id %>" class="mobile-list-item mobile-list-link">
+          <div class="mobile-list-title"><%= p.receipt_no %></div>
+          <div class="mobile-list-sub"><%= p.name %> · PKR <%= p.amount.toLocaleString() %></div>
+          <div class="mobile-list-sub">
+            <span class="badge <%= p.is_reversed ? 'badge-danger' : 'badge-success' %>"><%= p.is_reversed ? 'reversed' : p.method %></span>
+            · <%= p.payment_date %>
+          </div>
+        </a>
+      <% }) %>
+    </div>
+  </main>
+  <%- include('partials/bottom-nav') %>
+</body>
+</html>

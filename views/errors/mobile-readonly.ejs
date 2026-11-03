@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Read-Only | Imam Ahmed Raza Academy</title>
+  <link rel="stylesheet" href="/css/app.css">
+  <style>
+    .ro-container { max-width: 520px; margin: 40px auto; padding: 40px 28px; background: #fff; border-radius: 16px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+    .ro-lock { font-size: 56px; margin-bottom: 12px; }
+    .ro-title { color: #F47B20; font-size: 22px; font-weight: 700; margin-bottom: 10px; }
+    .ro-msg { color: #20212A; font-size: 15px; line-height: 1.6; margin-bottom: 8px; }
+    .ro-hint { color: #737784; font-size: 13px; margin-bottom: 24px; }
+    .ro-code { background: #F5F6FA; padding: 2px 8px; border-radius: 4px; font-family: monospace; font-size: 12px; }
+    .ro-actions { display: flex; flex-direction: column; gap: 10px; }
+    .ro-actions .btn-primary, .ro-actions .btn-secondary { width: 100%; padding: 12px; text-align: center; display: block; }
+    .btn-secondary { background: #F5F6FA; color: #20212A; border: 1px solid #E0E2E8; border-radius: 8px; font-size: 15px; font-weight: 600; text-decoration: none; }
+    .btn-secondary:hover { background: #E8EAF0; }
+    .ro-back { margin-top: 20px; font-size: 13px; color: #737784; }
+  </style>
+</head>
+<body class="mobile-body">
+  <div class="ro-container">
+    <div class="ro-lock">🔒</div>
+    <h1 class="ro-title">Read-Only Mode</h1>
+    <p class="ro-msg">You are signed in via the <strong>mobile view</strong>, which is <strong>strictly view-only</strong>.</p>
+    <p class="ro-msg">All editing must be done from the desktop application.</p>
+    <p class="ro-hint">To make changes: logout and log in again via <span class="ro-code">/login</span>.</p>
+
+    <div class="ro-actions">
+      <form method="POST" action="/auth/logout">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <button type="submit" class="btn-primary">Logout & Login on Desktop</button>
+      </form>
+      <a href="/mobile/dashboard" class="btn-secondary">Back to Mobile Dashboard</a>
+    </div>
+
+    <p class="ro-back">Imam Ahmed Raza Academy — Under the Supervision of Barkati Foundation Trust</p>
+  </div>
+</body>
+</html>

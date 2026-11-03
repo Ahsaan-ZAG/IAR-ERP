@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en"><head><%- include('partials/head') %></head>
+<body class="mobile-body">
+  <%- include('partials/topbar') %>
+  <main class="mobile-main">
+    <a href="/mobile/more" class="mobile-back">← More</a>
+    <h1 class="mobile-page-title">Teachers</h1>
+    <div class="mobile-list">
+      <% teachers.forEach(t => { %>
+        <div class="mobile-list-item">
+          <div class="mobile-list-title"><%= t.display_name %></div>
+          <div class="mobile-list-sub"><code><%= t.username %></code> · <%= t.is_active ? 'Active' : 'Inactive' %></div>
+          <div class="mobile-list-sub">Completed sessions: <strong><%= t.completed_sessions %></strong></div>
+          <div class="mobile-list-time"><%= t.last_login_at ? 'Last login: ' + t.last_login_at.slice(0, 16).replace('T',' ') : 'Never logged in' %></div>
+        </div>
+      <% }) %>
+    </div>
+  </main>
+  <%- include('partials/bottom-nav') %>
+</body>
+</html>

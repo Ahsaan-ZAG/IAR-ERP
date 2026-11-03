@@ -1,0 +1,47 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title><%= title %></title><link rel="stylesheet" href="/css/app.css"></head>
+<body class="app-body">
+  <%- include('../partials/sidebar') %>
+  <div class="main-area"><%- include('../partials/navbar') %>
+    <main class="content">
+      <% if (flash) { %><div class="alert-<%= flash.type %>"><%= flash.message %></div><% } %>
+      <h1 class="page-title">Payments</h1>
+      <p class="page-sub">Total: <%= pagination.total %> payment(s)</p>
+
+      <form method="GET" action="/payments" class="filter-bar">
+        <input type="text" name="search" placeholder="Receipt no, name, roll no" value="<%= filters.search %>" style="flex:1">
+        <input type="date" name="from" value="<%= filters.from %>">
+        <input type="date" name="to" value="<%= filters.to %>">
+        <button type="submit" class="btn-secondary">Filter</button>
+        <a href="/payments" class="btn-link">Reset</a>
+      </form>
+
+      <% if (payments.length === 0) { %><div class="empty-state"><p>No payments found.</p></div>
+      <% } else { %>
+        <div class="table-wrap"><table class="data-table">
+          <thead><tr><th>Receipt No</th><th>Date</th><th>Student</th><th>Amount</th><th>Method</th><th>Status</th><th>By</th><th></th></tr></thead>
+          <tbody>
+            <% payments.forEach(p => { %>
+              <tr>
+                <td><code><%= p.receipt_no %></code></td>
+                <td><%= p.payment_date %></td>
+                <td><a href="/fees/student/<%= p.student_id %>"><%= p.name %></a> <span class="muted">(<%= p.roll_no %>)</span></td>
+                <td>PKR <%= p.amount.toLocaleString() %></td>
+                <td><%= p.method %></td>
+                <td><span class="badge <%= p.is_reversed ? 'badge-danger' : 'badge-success' %>"><%= p.is_reversed ? 'reversed' : 'active' %></span></td>
+                <td><%= p.received_by_name || '—' %></td>
+                <td><a href="/payments/<%= p.id %>" class="btn-link">View</a></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table></div>
+        <% if (pagination.totalPages > 1) { %>
+          <div class="pagination">
+            <% for (let i = 1; i <= pagination.totalPages; i++) { %>
+              <a href="/payments?page=<%= i %>&search=<%= encodeURIComponent(filters.search) %>&from=<%= filters.from %>&to=<%= filters.to %>" class="page-link <%= i === pagination.page ? 'active' : '' %>"><%= i %></a>
+            <% } %>
+          </div>
+        <% } %>
+      <% } %>
+    </main>
+  </div>
+</body></html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title><%= title %></title><link rel="stylesheet" href="/css/app.css"></head>
+<body class="app-body">
+  <%- include('../partials/sidebar') %>
+  <div class="main-area"><%- include('../partials/navbar') %>
+    <main class="content">
+      <% if (flash) { %><div class="alert-<%= flash.type %>"><%= flash.message %></div><% } %>
+      <h1 class="page-title">Settings</h1>
+      <p class="page-sub">Academy-wide configuration. Admin only.</p>
+
+      <div class="form-card" style="max-width:720px">
+        <form method="POST" action="/settings">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+          <div class="form-group">
+            <label>Academy Name *</label>
+            <input type="text" name="academy_name" required maxlength="120"
+                   value="<%= settings.academy_name || '' %>">
+            <p class="muted" style="font-size:12px;margin-top:4px">Appears on all pages, PDFs, and receipts.</p>
+          </div>
+
+          <div class="form-group">
+            <label>Supervision Text *</label>
+            <input type="text" name="academy_supervision" required maxlength="120"
+                   value="<%= settings.academy_supervision || '' %>">
+          </div>
+
+          <div class="form-group">
+            <label>Roll Number Prefix</label>
+            <input type="text" name="roll_prefix" required maxlength="10"
+                   value="<%= settings.roll_prefix || 'IRA' %>" style="text-transform:uppercase">
+            <p class="muted" style="font-size:12px;margin-top:4px">
+              Next year's roll numbers will use this prefix (e.g. <code><%= settings.roll_prefix || 'IRA' %>-2027-0001</code>).
+            </p>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn-primary" style="width:auto">Save Settings</button>
+          </div>
+        </form>
+      </div>
+
+      <h2 style="margin:28px 0 12px">Read-Only Configuration</h2>
+      <div class="form-card" style="max-width:720px">
+        <div class="detail-grid">
+          <div class="detail-item"><div class="detail-label">Timezone</div><div class="detail-value"><%= timezone %></div></div>
+          <div class="detail-item"><div class="detail-label">Currency</div><div class="detail-value">PKR (integer)</div></div>
+          <div class="detail-item"><div class="detail-label">Roll Year</div><div class="detail-value"><%= settings.roll_year || '—' %></div></div>
+          <div class="detail-item"><div class="detail-label">Roll Counter</div><div class="detail-value"><%= settings.roll_counter || '0' %></div></div>
+          <div class="detail-item"><div class="detail-label">Receipt Year</div><div class="detail-value"><%= settings.receipt_year || '—' %></div></div>
+          <div class="detail-item"><div class="detail-label">Receipt Counter</div><div class="detail-value"><%= settings.receipt_counter || '0' %></div></div>
+        </div>
+        <p class="muted" style="font-size:12px;margin-top:12px">
+          Timezone and currency are set via environment variables and require server restart to change.
+        </p>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

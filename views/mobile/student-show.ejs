@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en"><head><%- include('partials/head') %></head>
+<body class="mobile-body">
+  <%- include('partials/topbar') %>
+  <main class="mobile-main">
+    <a href="/mobile/students" class="mobile-back">← Students</a>
+    <h1 class="mobile-page-title"><%= student.name %></h1>
+    <p class="mobile-page-sub">
+      <span class="mobile-code"><%= student.roll_no %></span>
+      · <%= student.batch_name || 'Unassigned' %>
+    </p>
+
+    <div class="mobile-card">
+      <div class="mobile-card-row"><span>Father</span><span><%= student.father_name %></span></div>
+      <div class="mobile-card-row"><span>Status</span><span><%= student.status %></span></div>
+      <div class="mobile-card-row"><span>Admission</span><span><%= student.admission_date %></span></div>
+      <div class="mobile-card-row"><span>Balance</span><span class="<%= balance > 0 ? 'danger' : (balance < 0 ? 'success' : '') %>">PKR <%= balance.toLocaleString() %></span></div>
+    </div>
+
+    <h2 class="mobile-section-title">Recent Ledger</h2>
+    <% if (ledger.length === 0) { %>
+      <div class="mobile-empty">No ledger entries.</div>
+    <% } else { %>
+      <div class="mobile-list">
+        <% ledger.forEach(l => { %>
+          <div class="mobile-list-item">
+            <div class="mobile-list-title">
+              <span class="badge badge-<%= l.entry_type === 'charge' ? 'danger' : 'success' %>"><%= l.entry_type %></span>
+              <span class="mobile-amount"><%= l.amount > 0 ? '+' : '' %><%= l.amount.toLocaleString() %></span>
+            </div>
+            <div class="mobile-list-sub"><%= l.description || '—' %></div>
+            <div class="mobile-list-time"><%= l.entry_date || l.created_at.slice(0, 10) %></div>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+
+    <p class="mobile-read-only-hint">Read-only view. Use desktop to edit records.</p>
+  </main>
+  <%- include('partials/bottom-nav') %>
+</body>
+</html>

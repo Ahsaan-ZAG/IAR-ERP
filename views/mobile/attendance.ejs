@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en"><head><%- include('partials/head') %></head>
+<body class="mobile-body">
+  <%- include('partials/topbar') %>
+  <main class="mobile-main">
+    <h1 class="mobile-page-title">Attendance</h1>
+    <p class="mobile-page-sub">Read-only view</p>
+
+    <form method="GET" action="/mobile/attendance" class="mobile-search">
+      <select name="batch" required>
+        <option value="">Select batch</option>
+        <% batches.forEach(b => { %>
+          <option value="<%= b.id %>" <%= batchId === b.id ? 'selected' : '' %>><%= b.name %></option>
+        <% }) %>
+      </select>
+      <input type="date" name="date" value="<%= date %>">
+      <button type="submit">View</button>
+    </form>
+
+    <% if (selectedBatch) { %>
+      <h2 class="mobile-section-title"><%= selectedBatch.name %> · <%= date %></h2>
+      <% if (records.length === 0) { %>
+        <div class="mobile-empty">No attendance recorded for this date.</div>
+      <% } else { %>
+        <div class="mobile-list">
+          <% records.forEach(r => { %>
+            <div class="mobile-list-item">
+              <div class="mobile-list-title"><%= r.name %></div>
+              <div class="mobile-list-sub"><span class="mobile-code"><%= r.roll_no %></span> ·
+                <span class="badge <%= r.status === 'present' ? 'badge-success' : (r.status === 'absent' ? 'badge-danger' : 'badge-muted') %>"><%= r.status %></span>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      <% } %>
+    <% } %>
+  </main>
+  <%- include('partials/bottom-nav') %>
+</body>
+</html>

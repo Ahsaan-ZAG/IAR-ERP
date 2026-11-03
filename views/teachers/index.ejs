@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><title><%= title %></title>
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body class="app-body">
+  <%- include('../partials/sidebar') %>
+  <div class="main-area">
+    <%- include('../partials/navbar') %>
+    <main class="content">
+      <% if (flash) { %><div class="alert-<%= flash.type %>"><%= flash.message %></div><% } %>
+      <h1 class="page-title">Teachers</h1>
+      <p class="page-sub">Read-only view of teacher records. User management is admin-only.</p>
+
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Name</th><th>Username</th><th>Status</th><th>Completed Sessions</th><th>Last Login</th><th></th></tr></thead>
+          <tbody>
+            <% teachers.forEach(t => { %>
+              <tr>
+                <td><a href="/teachers/<%= t.id %>"><%= t.display_name %></a></td>
+                <td><code><%= t.username %></code></td>
+                <td><span class="badge <%= t.is_active ? 'badge-success' : 'badge-muted' %>"><%= t.is_active ? 'active' : 'inactive' %></span></td>
+                <td><%= t.completed_sessions || 0 %></td>
+                <td><%= t.last_login_at || '—' %></td>
+                <td><a href="/teachers/<%= t.id %>" class="btn-link">View</a></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

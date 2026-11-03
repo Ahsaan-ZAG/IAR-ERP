@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en"><head><%- include('partials/head') %></head>
+<body class="mobile-body">
+  <%- include('partials/topbar') %>
+  <main class="mobile-main">
+    <h1 class="mobile-page-title">Batches</h1>
+    <div class="mobile-list">
+      <% batches.forEach(b => { %>
+        <a href="/mobile/batches/<%= b.id %>" class="mobile-list-item mobile-list-link">
+          <div class="mobile-list-title"><%= b.name %></div>
+          <div class="mobile-list-sub"><%= b.start_time %> – <%= b.end_time %></div>
+          <div class="mobile-list-sub"><%= b.active_students %> active student(s)</div>
+        </a>
+      <% }) %>
+    </div>
+  </main>
+  <%- include('partials/bottom-nav') %>
+</body>
+</html>

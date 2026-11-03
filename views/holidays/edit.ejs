@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title><%= title %></title><link rel="stylesheet" href="/css/app.css"></head>
+<body class="app-body">
+  <%- include('../partials/sidebar') %>
+  <div class="main-area"><%- include('../partials/navbar') %>
+    <main class="content">
+      <h1 class="page-title">Edit Holiday</h1>
+      <p class="page-sub"><%= holiday.title %></p>
+
+      <div class="form-card" style="max-width:720px">
+        <% if (formErrors._general) { %><div class="alert-error"><%= formErrors._general %></div><% } %>
+        <form method="POST" action="/holidays/<%= holiday.id %>/edit">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+          <div class="form-group"><label>Title *</label>
+            <input type="text" name="title" required maxlength="100" value="<%= formData.title %>">
+          </div>
+          <div class="form-group"><label>Reason</label>
+            <input type="text" name="reason" maxlength="200" value="<%= formData.reason %>">
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="form-group"><label>Start Date *</label>
+              <input type="date" name="start_date" required value="<%= formData.start_date %>">
+            </div>
+            <div class="form-group"><label>End Date *</label>
+              <input type="date" name="end_date" required value="<%= formData.end_date %>">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+              <input type="checkbox" name="is_full_day" value="1" <%= formData.is_full_day ? 'checked' : '' %> onchange="document.getElementById('partialFields').style.display = this.checked ? 'none' : 'block'">
+              Full day holiday
+            </label>
+          </div>
+
+          <div id="partialFields" style="display:<%= formData.is_full_day ? 'none' : 'block' %>;padding:14px;background:#F9FAFB;border-radius:8px;margin-bottom:16px">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div class="form-group"><label>Partial Start</label>
+                <input type="time" name="partial_start" value="<%= formData.partial_start %>">
+              </div>
+              <div class="form-group"><label>Partial End</label>
+                <input type="time" name="partial_end" value="<%= formData.partial_end %>">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Affected Batches</label>
+            <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;cursor:pointer">
+              <input type="checkbox" name="all_batches" value="1" <%= formData.all_batches ? 'checked' : '' %> onchange="document.querySelectorAll('[name=batch_ids]').forEach(c => c.disabled = this.checked)">
+              All batches
+            </label>
+            <div style="padding-left:22px">
+              <% batches.forEach(b => { %>
+                <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer">
+                  <input type="checkbox" name="batch_ids" value="<%= b.id %>" <%= formData.batch_ids.map(String).includes(String(b.id)) ? 'checked' : '' %>>
+                  <%= b.name %> <span class="muted" style="font-size:12px">(<%= b.start_time %> – <%= b.end_time %>)</span>
+                </label>
+              <% }) %>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn-primary" style="width:auto">Save Changes</button>
+            <a href="/holidays" class="btn-link">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </main>
+  </div>
+</body></html>

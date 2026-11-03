@@ -1,0 +1,43 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title><%= title %></title><link rel="stylesheet" href="/css/app.css"></head>
+<body class="app-body">
+  <%- include('../partials/sidebar') %>
+  <div class="main-area"><%- include('../partials/navbar') %>
+    <main class="content">
+      <% if (flash) { %><div class="alert-<%= flash.type %>"><%= flash.message %></div><% } %>
+      <h1 class="page-title"><%= assignment.title %></h1>
+      <p class="page-sub"><%= assignment.batch_name %> · Assigned <%= assignment.assigned_date %> · Due <%= assignment.due_date || '—' %> · By <%= assignment.created_by_name || '—' %></p>
+      <% if (assignment.description) { %><div class="form-card" style="margin-bottom:20px"><p><%= assignment.description %></p></div><% } %>
+
+      <% if (rows.length === 0) { %><div class="empty-state"><p>No students in this batch.</p></div>
+      <% } else { %>
+        <form method="POST" action="/assignments/<%= assignment.id %>/status">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <div class="table-wrap"><table class="data-table">
+            <thead><tr><th>Roll No</th><th>Name</th><th>Status</th><th>Submitted</th><th>Remarks</th></tr></thead>
+            <tbody>
+              <% rows.forEach(s => { %>
+                <tr>
+                  <td><code><%= s.roll_no %></code></td>
+                  <td><%= s.name %></td>
+                  <td>
+                    <select name="status_<%= s.id %>" style="padding:6px;border:1px solid #E0E2E8;border-radius:6px">
+                      <% ['pending','submitted','late','graded'].forEach(st => { %>
+                        <option value="<%= st %>" <%= (s.status || 'pending') === st ? 'selected' : '' %>><%= st %></option>
+                      <% }) %>
+                    </select>
+                  </td>
+                  <td><%= s.submitted_at ? s.submitted_at.slice(0,10) : '—' %></td>
+                  <td><input type="text" name="remarks_<%= s.id %>" maxlength="100" value="<%= s.remarks || '' %>" style="width:180px;padding:6px;border:1px solid #E0E2E8;border-radius:6px" placeholder="optional"></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table></div>
+          <div class="form-actions" style="margin-top:16px">
+            <button type="submit" class="btn-primary" style="width:auto">Save Statuses</button>
+            <a href="/assignments" class="btn-link">Back</a>
+          </div>
+        </form>
+      <% } %>
+    </main>
+  </div>
+</body></html>

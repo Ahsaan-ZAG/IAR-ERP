@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en"><head><%- include('partials/head') %></head>
+<body class="mobile-body">
+  <%- include('partials/topbar') %>
+  <main class="mobile-main">
+    <h1 class="mobile-page-title">Notifications</h1>
+
+    <% if (notifications.length === 0) { %>
+      <div class="mobile-empty">No notifications.</div>
+    <% } else { %>
+      <div class="mobile-list">
+        <% notifications.forEach(n => { %>
+          <div class="mobile-list-item">
+            <div class="mobile-list-title"><%= n.type %></div>
+            <div class="mobile-list-sub"><%= n.message %></div>
+            <div class="mobile-list-time"><%= n.created_at.slice(0, 16).replace('T',' ') %></div>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+  </main>
+  <%- include('partials/bottom-nav') %>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en"><head><%- include('partials/head') %></head>
+<body class="mobile-body">
+  <%- include('partials/topbar') %>
+  <main class="mobile-main">
+    <a href="/mobile/fees" class="mobile-back">← Fees</a>
+    <h1 class="mobile-page-title"><%= student.name %></h1>
+    <p class="mobile-page-sub"><span class="mobile-code"><%= student.roll_no %></span> · <%= student.batch_name || '—' %></p>
+
+    <div class="mobile-balance-card <%= balance > 0 ? 'owed' : (balance < 0 ? 'credit' : 'clear') %>">
+      <div class="mobile-balance-label">Balance</div>
+      <div class="mobile-balance-amount">PKR <%= balance.toLocaleString() %></div>
+    </div>
+
+    <h2 class="mobile-section-title">Ledger</h2>
+    <div class="mobile-list">
+      <% ledger.forEach(l => { %>
+        <div class="mobile-list-item">
+          <div class="mobile-list-title">
+            <span class="badge badge-<%= l.entry_type === 'charge' ? 'danger' : 'success' %>"><%= l.entry_type %></span>
+            <span class="mobile-amount"><%= l.amount > 0 ? '+' : '' %><%= l.amount.toLocaleString() %></span>
+          </div>
+          <div class="mobile-list-sub"><%= l.description || '—' %></div>
+          <div class="mobile-list-time"><%= l.entry_date || l.created_at.slice(0, 10) %></div>
+        </div>
+      <% }) %>
+    </div>
+
+    <p class="mobile-read-only-hint">Use desktop to add charges or receive payments.</p>
+  </main>
+  <%- include('partials/bottom-nav') %>
+</body>
+</html>

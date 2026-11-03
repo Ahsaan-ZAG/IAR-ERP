@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><title><%= title %></title>
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body class="app-body">
+  <%- include('../partials/sidebar') %>
+  <div class="main-area">
+    <%- include('../partials/navbar') %>
+    <main class="content">
+      <% if (flash) { %><div class="alert-<%= flash.type %>"><%= flash.message %></div><% } %>
+      <h1 class="page-title"><%= session.batch_name %> — <%= session.session_date %></h1>
+      <p class="page-sub">Status: <span class="badge badge-<%= session.status === 'completed' ? 'success' : 'muted' %>"><%= session.status %></span></p>
+
+      <div class="form-card">
+        <div class="detail-grid">
+          <div class="detail-item"><div class="detail-label">Scheduled</div><div class="detail-value"><%= session.scheduled_start %> – <%= session.scheduled_end %></div></div>
+          <div class="detail-item"><div class="detail-label">Actual Start</div><div class="detail-value"><%= session.actual_start || '—' %></div></div>
+          <div class="detail-item"><div class="detail-label">Completed At</div><div class="detail-value"><%= session.completed_at || '—' %></div></div>
+          <div class="detail-item"><div class="detail-label">Topic Covered</div><div class="detail-value"><%= session.topic_covered || '—' %></div></div>
+        </div>
+
+        <h3 style="margin-top:20px">Assigned Teachers</h3>
+        <% if (teachers.length === 0) { %><p class="muted">No teachers assigned yet.</p>
+        <% } else { %>
+          <ul style="margin-top:8px">
+            <% teachers.forEach(t => { %><li><%= t.display_name %> — confirmed: <%= t.confirmed_at || 'pending' %></li><% }) %>
+          </ul>
+        <% } %>
+
+        <% if (session.status !== 'completed' && session.status !== 'holiday') { %>
+          <div class="form-actions" style="margin-top:20px">
+            <% if (session.status === 'scheduled') { %>
+              <form method="POST" action="/batch-sessions/<%= session.id %>/start" style="display:inline">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button type="submit" class="btn-secondary">Start Session</button>
+              </form>
+            <% } %>
+            <form method="POST" action="/batch-sessions/<%= session.id %>/complete" style="display:inline-flex;flex-direction:column;gap:8px;width:100%">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <input type="text" name="topic" placeholder="Topic covered" style="padding:8px 10px;border:1px solid #E0E2E8;border-radius:6px">
+              <input type="text" name="remarks" placeholder="Remarks (optional)" style="padding:8px 10px;border:1px solid #E0E2E8;border-radius:6px">
+              <button type="submit" class="btn-primary" style="width:auto;align-self:flex-start">Mark Completed</button>
+            </form>
+          </div>
+        <% } %>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

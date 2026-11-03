@@ -1,0 +1,80 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title><%= title %></title><link rel="stylesheet" href="/css/app.css"></head>
+<body class="app-body">
+  <%- include('../partials/sidebar') %>
+  <div class="main-area"><%- include('../partials/navbar') %>
+    <main class="content">
+      <h1 class="page-title">Global Search</h1>
+      <form method="GET" action="/search" class="filter-bar">
+        <input type="text" name="q" placeholder="Search students, receipts, batches, teachers, expenses..." value="<%= q %>" autofocus style="flex:1">
+        <button type="submit" class="btn-primary" style="width:auto">Search</button>
+      </form>
+
+      <% if (!q) { %><div class="empty-state"><p>Enter at least 2 characters to search.</p></div>
+      <% } else { %>
+        <% const total = results.students.length + results.teachers.length + results.payments.length + results.batches.length + results.expenses.length; %>
+        <% if (total === 0) { %><div class="empty-state"><p>No results for "<%= q %>".</p></div>
+        <% } else { %>
+
+          <% if (results.students.length > 0) { %>
+            <h2 style="margin:20px 0 12px">Students (<%= results.students.length %>)</h2>
+            <div class="table-wrap"><table class="data-table">
+              <thead><tr><th>Roll No</th><th>Name</th><th>Father</th><th>Batch</th><th></th></tr></thead>
+              <tbody><% results.students.forEach(s => { %><tr>
+                <td><code><%= s.roll_no %></code></td><td><a href="/students/<%= s.id %>"><%= s.name %></a></td>
+                <td><%= s.father_name %></td><td><%= s.batch_name || '—' %></td>
+                <td><a href="/fees/student/<%= s.id %>" class="btn-link">Fees</a></td>
+              </tr><% }) %></tbody>
+            </table></div>
+          <% } %>
+
+          <% if (results.payments.length > 0) { %>
+            <h2 style="margin:20px 0 12px">Payments (<%= results.payments.length %>)</h2>
+            <div class="table-wrap"><table class="data-table">
+              <thead><tr><th>Receipt</th><th>Date</th><th>Student</th><th>Amount</th><th></th></tr></thead>
+              <tbody><% results.payments.forEach(p => { %><tr>
+                <td><code><%= p.receipt_no %></code></td><td><%= p.payment_date %></td>
+                <td><%= p.student_name %></td><td>PKR <%= p.amount.toLocaleString() %></td>
+                <td><a href="/payments/<%= p.id %>" class="btn-link">View</a></td>
+              </tr><% }) %></tbody>
+            </table></div>
+          <% } %>
+
+          <% if (results.batches.length > 0) { %>
+            <h2 style="margin:20px 0 12px">Batches (<%= results.batches.length %>)</h2>
+            <div class="table-wrap"><table class="data-table">
+              <thead><tr><th>Name</th><th>Time</th><th></th></tr></thead>
+              <tbody><% results.batches.forEach(b => { %><tr>
+                <td><a href="/batches/<%= b.id %>"><%= b.name %></a></td>
+                <td><%= b.start_time %> – <%= b.end_time %></td>
+                <td><a href="/batches/<%= b.id %>" class="btn-link">Open</a></td>
+              </tr><% }) %></tbody>
+            </table></div>
+          <% } %>
+
+          <% if (results.teachers.length > 0) { %>
+            <h2 style="margin:20px 0 12px">Teachers (<%= results.teachers.length %>)</h2>
+            <div class="table-wrap"><table class="data-table">
+              <thead><tr><th>Name</th><th>Username</th><th></th></tr></thead>
+              <tbody><% results.teachers.forEach(t => { %><tr>
+                <td><a href="/teachers/<%= t.id %>"><%= t.display_name %></a></td><td><code><%= t.username %></code></td>
+                <td><a href="/teachers/<%= t.id %>" class="btn-link">View</a></td>
+              </tr><% }) %></tbody>
+            </table></div>
+          <% } %>
+
+          <% if (results.expenses.length > 0) { %>
+            <h2 style="margin:20px 0 12px">Expenses (<%= results.expenses.length %>)</h2>
+            <div class="table-wrap"><table class="data-table">
+              <thead><tr><th>Date</th><th>Category</th><th>Amount</th><th>Description</th></tr></thead>
+              <tbody><% results.expenses.forEach(e => { %><tr>
+                <td><%= e.expense_date %></td><td><%= e.category %></td>
+                <td>PKR <%= e.amount.toLocaleString() %></td><td><%= e.description || '—' %></td>
+              </tr><% }) %></tbody>
+            </table></div>
+          <% } %>
+
+        <% } %>
+      <% } %>
+    </main>
+  </div>
+</body></html>

@@ -1,0 +1,34 @@
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-name">Imam Ahmed Raza Academy</div>
+    <div class="brand-sub">Under the Supervision of<br>Barkati Foundation Trust</div>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="/dashboard" class="nav-item <%= currentPath === '/dashboard' ? 'active' : '' %>">Dashboard</a>
+    <a href="/students" class="nav-item <%= currentPath && currentPath.startsWith('/students') ? 'active' : '' %>">Students</a>
+    <a href="/admissions/new" class="nav-item <%= currentPath === '/admissions/new' ? 'active' : '' %>">Admissions</a>
+    <a href="/teachers" class="nav-item <%= currentPath && currentPath.startsWith('/teachers') ? 'active' : '' %>">Teachers</a>
+    <a href="/batches" class="nav-item <%= currentPath && currentPath.startsWith('/batches') && !currentPath.startsWith('/batch-sessions') ? 'active' : '' %>">Batches</a>
+    <a href="/attendance" class="nav-item <%= currentPath && currentPath.startsWith('/attendance') && !currentPath.startsWith('/teacher-attendance') ? 'active' : '' %>">Student Attendance</a>
+    <a href="/teacher-attendance" class="nav-item <%= currentPath && currentPath.startsWith('/teacher-attendance') ? 'active' : '' %>">Teacher Attendance</a>
+    <a href="/batch-sessions" class="nav-item <%= currentPath && currentPath.startsWith('/batch-sessions') ? 'active' : '' %>">Batch Sessions</a>
+    <a href="/holidays" class="nav-item <%= currentPath && currentPath.startsWith('/holidays') ? 'active' : '' %>">Holiday Calendar</a>
+    <a href="/exams" class="nav-item <%= currentPath && currentPath.startsWith('/exams') ? 'active' : '' %>">Exams & Results</a>
+    <a href="/courses" class="nav-item <%= currentPath && currentPath.startsWith('/courses') ? 'active' : '' %>">Courses & Syllabus</a>
+    <a href="/assignments" class="nav-item <%= currentPath && currentPath.startsWith('/assignments') ? 'active' : '' %>">Homework & Assignments</a>
+    <a href="/fees" class="nav-item <%= currentPath && currentPath.startsWith('/fees') ? 'active' : '' %>">Fee Management</a>
+    <a href="/payments" class="nav-item <%= currentPath && currentPath.startsWith('/payments') ? 'active' : '' %>">Payments</a>
+    <a href="/financial" class="nav-item <%= currentPath === '/financial' ? 'active' : '' %>">Financial</a>
+    <a href="/reports" class="nav-item <%= currentPath && currentPath.startsWith('/reports') ? 'active' : '' %>">Reports</a>
+    <a href="/analytics" class="nav-item <%= currentPath && currentPath.startsWith('/analytics') ? 'active' : '' %>">Analytics</a>
+    <a href="/ai" class="nav-item <%= currentPath && currentPath.startsWith('/ai') && !currentPath.startsWith('/ai-help') ? 'active' : '' %>">AI Assistant</a>
+    <a href="/notifications" class="nav-item <%= currentPath && currentPath.startsWith('/notifications') ? 'active' : '' %>">Notifications</a>
+    <a href="/search" class="nav-item <%= currentPath === '/search' ? 'active' : '' %>">Global Search</a>
+    <% if (user && user.role === 'admin') { %>
+      <a href="/users" class="nav-item <%= currentPath && currentPath.startsWith('/users') ? 'active' : '' %>">User Management</a>
+      <a href="/audit-logs" class="nav-item <%= currentPath && currentPath.startsWith('/audit-logs') ? 'active' : '' %>">Audit Logs</a>
+      <a href="/backups" class="nav-item <%= currentPath && currentPath.startsWith('/backups') ? 'active' : '' %>">Backup & Restore</a>
+      <a href="/settings" class="nav-item <%= currentPath && currentPath.startsWith('/settings') ? 'active' : '' %>">Settings</a>
+    <% } %>
+  </nav>
+</aside>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title><%= title %></title><link rel="stylesheet" href="/css/app.css"></head>
+<body class="app-body">
+  <%- include('../partials/sidebar') %>
+  <div class="main-area"><%- include('../partials/navbar') %>
+    <main class="content">
+      <% if (flash) { %><div class="alert-<%= flash.type %>"><%= flash.message %></div><% } %>
+      <% if (!student.current_batch_id) { %>
+        <div class="alert-warning">This student is not assigned to any batch. <a href="/students/<%= student.id %>/edit">Assign a batch</a>.</div>
+      <% } %>
+      <div class="page-header-row">
+        <div>
+          <h1 class="page-title"><%= student.name %></h1>
+          <p class="page-sub"><code><%= student.roll_no %></code> · <%= student.batch_name || 'Unassigned' %> · <span class="badge <%= student.status === 'active' ? 'badge-success' : 'badge-muted' %>"><%= student.status %></span></p>
+        </div>
+        <div style="display:flex;gap:8px">
+          <a href="/students/<%= student.id %>/edit" class="btn-primary" style="width:auto">Edit</a>
+          <a href="/students" class="btn-link" style="align-self:center">Back to List</a>
+        </div>
+      </div>
+
+      <nav class="tabs">
+        <a href="?tab=details" class="tab <%= activeTab === 'details' ? 'active' : '' %>">Details</a>
+        <a href="?tab=batch-history" class="tab <%= activeTab === 'batch-history' ? 'active' : '' %>">Batch History</a>
+        <a href="?tab=performance" class="tab <%= activeTab === 'performance' ? 'active' : '' %>">Performance</a>
+        <a href="?tab=activity" class="tab <%= activeTab === 'activity' ? 'active' : '' %>">Activity Timeline</a>
+      </nav>
+
+      <% if (activeTab === 'details') { %>
+        <div class="form-card">
+          <div class="detail-grid">
+            <div class="detail-item"><div class="detail-label">Roll Number</div><div class="detail-value"><code><%= student.roll_no %></code></div></div>
+            <div class="detail-item"><div class="detail-label">Student Name</div><div class="detail-value"><%= student.name %></div></div>
+            <div class="detail-item"><div class="detail-label">Father Name</div><div class="detail-value"><%= student.father_name %></div></div>
+            <div class="detail-item"><div class="detail-label">Current Batch</div><div class="detail-value"><%= student.batch_name || 'Unassigned' %></div></div>
+            <div class="detail-item"><div class="detail-label">Status</div><div class="detail-value"><%= student.status %></div></div>
+            <div class="detail-item"><div class="detail-label">Admission Date</div><div class="detail-value"><%= student.admission_date %></div></div>
+          </div>
+        </div>
+      <% } else if (activeTab === 'batch-history') { %>
+        <div class="form-card">
+          <% if (batchHistory.length === 0) { %><p class="muted">No batch transfers.</p>
+          <% } else { %>
+            <div class="table-wrap"><table class="data-table">
+              <thead><tr><th>From</th><th>To</th><th>By</th><th>When</th><th>Reason</th></tr></thead>
+              <tbody><% batchHistory.forEach(h => { %><tr>
+                <td><%= h.from_batch_name || '—' %></td><td><%= h.to_batch_name || '—' %></td>
+                <td><%= h.changed_by_name || '—' %></td><td><%= h.changed_at %></td><td><%= h.reason || '—' %></td>
+              </tr><% }) %></tbody>
+            </table></div>
+          <% } %>
+        </div>
+      <% } else if (activeTab === 'performance') { %>
+        <h2 style="margin-bottom:12px">Exam Results</h2>
+        <% if (performance.assessments.length === 0) { %><div class="empty-state"><p>No exam results yet.</p></div>
+        <% } else { %>
+          <div class="table-wrap"><table class="data-table">
+            <thead><tr><th>Date</th><th>Exam</th><th>Type</th><th>Batch</th><th>Marks</th><th>Grade</th><th>Remarks</th></tr></thead>
+            <tbody><% performance.assessments.forEach(a => { %><tr>
+              <td><%= a.exam_date %></td><td><%= a.title %></td>
+              <td><span class="badge badge-muted"><%= a.type %></span></td>
+              <td><%= a.batch_name || '—' %></td>
+              <td><strong><%= a.obtained_marks %> / <%= a.max_marks %></strong></td>
+              <td><span class="badge badge-success"><%= a.grade %></span></td>
+              <td><%= a.remarks || '—' %></td>
+            </tr><% }) %></tbody>
+          </table></div>
+        <% } %>
+
+        <h2 style="margin:24px 0 12px">Assignments</h2>
+        <% if (performance.assignments.length === 0) { %><div class="empty-state"><p>No assignments yet.</p></div>
+        <% } else { %>
+          <div class="table-wrap"><table class="data-table">
+            <thead><tr><th>Assigned</th><th>Title</th><th>Batch</th><th>Status</th><th>Remarks</th></tr></thead>
+            <tbody><% performance.assignments.forEach(a => { %><tr>
+              <td><%= a.assigned_date %></td><td><%= a.title %></td>
+              <td><%= a.batch_name || '—' %></td>
+              <td><span class="badge <%= a.assignment_status === 'graded' ? 'badge-success' : (a.assignment_status === 'late' ? 'badge-danger' : 'badge-muted') %>"><%= a.assignment_status %></span></td>
+              <td><%= a.status_remarks || '—' %></td>
+            </tr><% }) %></tbody>
+          </table></div>
+        <% } %>
+      <% } else if (activeTab === 'activity') { %>
+        <div class="form-card">
+          <% if (timeline.length === 0) { %><p class="muted">No activity.</p>
+          <% } else { %><ul class="activity-list"><% timeline.forEach(t => { %><li>
+            <span class="activity-user"><%= t.user_name || 'System' %></span>
+            <span class="activity-action"><%= t.action %></span>
+            <span class="activity-time"><%= t.created_at %></span>
+          </li><% }) %></ul><% } %>
+        </div>
+      <% } %>
+    </main>
+  </div>
+</body>
+</html>

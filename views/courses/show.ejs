@@ -1,0 +1,47 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title><%= title %></title><link rel="stylesheet" href="/css/app.css"></head>
+<body class="app-body">
+  <%- include('../partials/sidebar') %>
+  <div class="main-area"><%- include('../partials/navbar') %>
+    <main class="content">
+      <% if (flash) { %><div class="alert-<%= flash.type %>"><%= flash.message %></div><% } %>
+      <div class="page-header-row">
+        <div>
+          <h1 class="page-title"><%= course.title %></h1>
+          <p class="page-sub"><%= course.batch_name || 'All batches' %> · <%= course.completed %> / <%= course.total %> topics · <%= course.progress %>% complete</p>
+        </div>
+        <a href="/courses" class="btn-link" style="align-self:center">← Back</a>
+      </div>
+      <% if (course.description) { %><p style="margin-bottom:20px;color:#737784"><%= course.description %></p><% } %>
+      <div class="form-card" style="margin-bottom:20px">
+        <h3 style="margin-bottom:12px">Add Topic</h3>
+        <form method="POST" action="/courses/<%= course.id %>/topics" style="display:flex;gap:8px">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <input type="text" name="topic" required maxlength="200" style="flex:1;padding:10px;border:1px solid #E0E2E8;border-radius:8px" placeholder="New topic">
+          <button type="submit" class="btn-primary" style="width:auto">Add</button>
+        </form>
+      </div>
+      <h3 style="margin-bottom:12px">Syllabus Topics</h3>
+      <% if (course.topics.length === 0) { %><div class="empty-state"><p>No topics yet.</p></div>
+      <% } else { %>
+        <div class="table-wrap"><table class="data-table">
+          <thead><tr><th style="width:60px">Status</th><th>Topic</th><th>Completed At</th><th>Action</th></tr></thead>
+          <tbody>
+            <% course.topics.forEach(t => { %>
+              <tr>
+                <td><%= t.is_completed ? '✅' : '⬜' %></td>
+                <td><%= t.topic %></td>
+                <td><%= t.completed_at || '—' %></td>
+                <td>
+                  <form method="POST" action="/courses/<%= course.id %>/topics/<%= t.id %>/toggle" style="display:inline">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <button type="submit" class="btn-link" style="background:none;border:none;cursor:pointer;padding:0"><%= t.is_completed ? 'Mark Pending' : 'Mark Complete' %></button>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table></div>
+      <% } %>
+    </main>
+  </div>
+</body></html>

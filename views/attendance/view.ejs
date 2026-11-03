@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><title><%= title %></title>
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body class="app-body">
+  <%- include('../partials/sidebar') %>
+  <div class="main-area">
+    <%- include('../partials/navbar') %>
+    <main class="content">
+      <h1 class="page-title">Attendance — <%= batch.name %></h1>
+      <p class="page-sub"><%= date %> · <%= records.length %> record(s)</p>
+
+      <a href="/attendance/mark?batch=<%= batch.id %>&date=<%= date %>" class="btn-primary" style="width:auto;display:inline-block;margin-bottom:16px">Mark / Edit Attendance</a>
+
+      <% if (records.length === 0) { %>
+        <div class="empty-state"><p>No attendance recorded for this date.</p></div>
+      <% } else { %>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Roll No</th><th>Name</th><th>Status</th><th>Marked By</th></tr></thead>
+            <tbody>
+              <% records.forEach(r => { %>
+                <tr>
+                  <td><code><%= r.roll_no %></code></td>
+                  <td><%= r.name %></td>
+                  <td><span class="badge <%= r.status === 'present' ? 'badge-success' : (r.status === 'absent' ? 'badge-danger' : 'badge-muted') %>"><%= r.status %></span></td>
+                  <td><%= r.marked_by_name || '—' %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      <% } %>
+    </main>
+  </div>
+</body>
+</html>

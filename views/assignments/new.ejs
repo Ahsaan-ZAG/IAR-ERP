@@ -1,0 +1,26 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title><%= title %></title><link rel="stylesheet" href="/css/app.css"></head>
+<body class="app-body">
+  <%- include('../partials/sidebar') %>
+  <div class="main-area"><%- include('../partials/navbar') %>
+    <main class="content">
+      <h1 class="page-title">New Assignment</h1>
+      <div class="form-card">
+        <% if (formErrors._general) { %><div class="alert-error"><%= formErrors._general %></div><% } %>
+        <form method="POST" action="/assignments/new">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <div class="form-group"><label>Title *</label><input type="text" name="title" required maxlength="120" value="<%= formData.title || '' %>" placeholder="e.g. Memorize Surah Al-Fatiha"></div>
+          <div class="form-group"><label>Batch *</label>
+            <select name="batch_id" required><option value="">Select batch</option>
+              <% batches.forEach(b => { %><option value="<%= b.id %>" <%= formData.batch_id==b.id?'selected':'' %>><%= b.name %></option><% }) %></select>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="form-group"><label>Assigned Date *</label><input type="date" name="assigned_date" required value="<%= formData.assigned_date || today %>"></div>
+            <div class="form-group"><label>Due Date</label><input type="date" name="due_date" value="<%= formData.due_date || '' %>"></div>
+          </div>
+          <div class="form-group"><label>Description</label><textarea name="description" rows="3" maxlength="500" style="width:100%;padding:10px;border:1px solid #E0E2E8;border-radius:8px;font-family:inherit"><%= formData.description || '' %></textarea></div>
+          <div class="form-actions"><button type="submit" class="btn-primary" style="width:auto">Create Assignment</button><a href="/assignments" class="btn-link">Cancel</a></div>
+        </form>
+      </div>
+    </main>
+  </div>
+</body></html>

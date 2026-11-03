@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en"><head><%- include('partials/head') %></head>
+<body class="mobile-body">
+  <%- include('partials/topbar') %>
+  <main class="mobile-main">
+    <a href="/mobile/batches" class="mobile-back">← Batches</a>
+    <h1 class="mobile-page-title"><%= batch.name %></h1>
+    <p class="mobile-page-sub"><%= batch.start_time %> – <%= batch.end_time %></p>
+
+    <h2 class="mobile-section-title">Students (<%= students.length %>)</h2>
+    <% if (students.length === 0) { %>
+      <div class="mobile-empty">No students.</div>
+    <% } else { %>
+      <div class="mobile-list">
+        <% students.forEach(s => { %>
+          <a href="/mobile/students/<%= s.id %>" class="mobile-list-item mobile-list-link">
+            <div class="mobile-list-title"><%= s.name %></div>
+            <div class="mobile-list-sub"><span class="mobile-code"><%= s.roll_no %></span></div>
+          </a>
+        <% }) %>
+      </div>
+    <% } %>
+
+    <h2 class="mobile-section-title">Recent Sessions</h2>
+    <% if (sessions.length === 0) { %>
+      <div class="mobile-empty">No sessions.</div>
+    <% } else { %>
+      <div class="mobile-list">
+        <% sessions.forEach(s => { %>
+          <div class="mobile-list-item">
+            <div class="mobile-list-title"><%= s.session_date %></div>
+            <div class="mobile-list-sub"><span class="badge <%= s.status === 'completed' ? 'badge-success' : 'badge-muted' %>"><%= s.status %></span></div>
+            <div class="mobile-list-sub"><%= s.topic_covered || '—' %></div>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+  </main>
+  <%- include('partials/bottom-nav') %>
+</body>
+</html>
