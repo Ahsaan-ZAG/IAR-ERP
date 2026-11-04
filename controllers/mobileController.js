@@ -9,6 +9,7 @@ import { listHolidays } from '../services/holidayService.js';
 import { listNotifications } from '../services/notificationService.js';
 import { REPORT_LIST } from '../services/reportService.js';
 import { ALLOWED_CHARTS } from '../services/analyticsService.js';
+import { getStudentBalance, getStudentLedger, listStudentsWithBalance } from '../services/feeService.js';
 
 function sum(query, ...params) {
   return db.prepare(query).get(...params)?.total ?? 0;
@@ -244,5 +245,52 @@ export function more(req, res) {
     user: req.session.user,
     csrfToken: res.locals.csrfToken,
     currentPath: req.path,
+  });
+}
+export function monthlyFees(req, res) {
+  const month = req.query.month || todayInTimezone().slice(0, 7);
+
+  const students = db.prepare(`
+    SELECT s.id, s.roll_no, s.name, s.father_name, b.name AS batch_name,
+           COALESCE(SUM(CASE WHEN l.entry_type = 'charge' THEN l.amount ELSE 0 END), 0) AS total_charged,
+           COALESCE(SUM(CASE WHEN l.entry_type IN ('payment', 'discount') THEN l.amount ELSE 0 END), 0) AS total_paid
+    FROM students s
+    LEFT JOIN batches b ON b.id = s.current_batch_id
+    LEFT JOIN student_fee_ledger l ON l.student_id = s.id AND l.fee_month = ?
+    WHERE s.status = 'active'
+    GROUP BY s.id
+    ORDER BY s.roll_no
+  `).all(month);
+
+  const feeRecords = students.map(s => {
+    const charged = s.total_charged === 0 ? 200 : s.total_charged;
+    const paid = Math.abs(s.total_paid);
+    const balance = charged - paid;
+    let status = 'unpaid';
+    if (balance <= 0) status = 'paid';
+    else if (paid > 0) status = 'partial';
+    return { ...s, display_charged: charged, display_paid: paid, display_balance: balance, status };
+  });
+
+  res.render('mobile/monthly-fees', {
+    title: 'Monthly Fees', user: req.session.user, csrfToken: res.locals.csrfToken,
+    currentPath: req.path, month, feeRecords,
+  });
+}
+
+// NAYA: Invoices Read-Only View
+export function invoices(req, res) {
+  const rows = db.prepare(`
+    SELECT i.id, i.invoice_no, i.fee_month, i.total_charged, i.total_paid, i.balance, i.status, i.created_at,
+           s.name AS student_name, s.roll_no
+    FROM invoices i
+    JOIN students s ON s.id = i.student_id
+    ORDER BY i.created_at DESC
+    LIMIT 50
+  `).all();
+
+  res.render('mobile/invoices', {
+    title: 'Invoices', user: req.session.user, csrfToken: res.locals.csrfToken,
+    currentPath: req.path, invoices: rows,
   });
 }
