@@ -1,0 +1,69 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title><%= title %></title><link rel="stylesheet" href="/css/app.css"></head>
+<body class="app-body">
+  <%- include('../partials/sidebar') %>
+  <div class="main-area"><%- include('../partials/navbar') %>
+    <main class="content">
+      <div class="page-header-row">
+        <div><h1 class="page-title">Generate Invoice</h1><p class="page-sub">Create a bill based on the ledger for a specific month.</p></div>
+        <a href="/invoices" class="btn-link" style="align-self:center">← Back</a>
+      </div>
+
+      <div class="form-card" style="max-width:640px">
+        <% if (formErrors._general) { %><div class="alert-error"><%= formErrors._general %></div><% } %>
+        <form method="POST" action="/invoices/generate">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          
+          <div class="form-group">
+            <label>Fee Month *</label>
+            <input type="month" name="fee_month" required value="<%= formData.fee_month %>">
+          </div>
+
+          <div class="form-group">
+            <label>Target *</label>
+            <select name="target" id="targetSelect" onchange="toggleTargets()" required>
+              <option value="single" <%= formData.target === 'single' ? 'selected' : '' %>>Single Student</option>
+              <option value="batch" <%= formData.target === 'batch' ? 'selected' : '' %>>Whole Batch</option>
+            </select>
+          </div>
+
+          <div class="form-group" id="studentSelectGroup">
+            <label>Select Student</label>
+            <select name="student_id">
+              <option value="">— Choose Student —</option>
+              <% students.forEach(s => { %>
+                <option value="<%= s.id %>"><%= s.name %> (<%= s.roll_no %>)</option>
+              <% }) %>
+            </select>
+          </div>
+
+          <div class="form-group" id="batchSelectGroup" style="display:none;">
+            <label>Select Batch</label>
+            <select name="batch_id">
+              <option value="">— Choose Batch —</option>
+              <% batches.forEach(b => { %>
+                <option value="<%= b.id %>"><%= b.name %></option>
+              <% }) %>
+            </select>
+          </div>
+
+          <div class="alert-info" style="margin-bottom:16px">
+            <strong>Note:</strong> This will calculate total charges and payments for the selected month and generate a locked Invoice PDF.
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn-primary" style="width:auto">Generate Invoice</button>
+            <a href="/invoices" class="btn-link">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </main>
+  </div>
+  <script>
+    function toggleTargets() {
+      const target = document.getElementById('targetSelect').value;
+      document.getElementById('studentSelectGroup').style.display = target === 'single' ? 'block' : 'none';
+      document.getElementById('batchSelectGroup').style.display = target === 'batch' ? 'block' : 'none';
+    }
+    toggleTargets();
+  </script>
+</body></html>
