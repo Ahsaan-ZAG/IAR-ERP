@@ -52,8 +52,12 @@
                 </td>
                 <td>
                   <% if (s.status !== 'paid') { %>
-                    <button type="button" class="btn-primary" style="width:auto;padding:6px 12px;font-size:12px" 
-                            onclick="openPayModal(<%= s.id %>, '<%= s.name %>', <%= s.display_balance %>, '<%= month %>')">
+                    <!-- onclick hata kar data-attributes use kiye hain -->
+                    <button type="button" class="btn-primary btn-collect" style="width:auto;padding:6px 12px;font-size:12px" 
+                            data-id="<%= s.id %>" 
+                            data-name="<%= s.name.replace(/'/g, '&#39;') %>" 
+                            data-balance="<%= s.display_balance %>" 
+                            data-month="<%= month %>">
                       Collect Fee
                     </button>
                   <% } else { %>
@@ -93,21 +97,14 @@
 
           <div class="form-actions">
             <button type="submit" class="btn-primary" style="width:auto">Confirm Payment</button>
-            <button type="button" class="btn-link" onclick="document.getElementById('payModal').close()">Cancel</button>
+            <!-- Cancel button ko class di hai taake JS se handle ho sake -->
+            <button type="button" class="btn-link btn-cancel">Cancel</button>
           </div>
         </form>
       </dialog>
 
-      <script>
-        function openPayModal(id, name, balance, month) {
-          document.getElementById('payStudentId').value = id;
-          document.getElementById('payStudentName').textContent = name;
-          document.getElementById('payMonth').value = month;
-          document.getElementById('payMonthLabel').textContent = month;
-          document.getElementById('payAmount').value = balance;
-          document.getElementById('payModal').showModal();
-        }
-      </script>
+      <!-- External JS file link ki hai -->
+      <script src="/js/monthly-fees.js"></script>
     </main>
   </div>
 </body>
