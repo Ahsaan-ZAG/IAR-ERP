@@ -23,9 +23,25 @@ addColumnIfMissing('assessments', 'description', 'TEXT');
 addColumnIfMissing('assessment_results', 'created_by', 'INTEGER');
 addColumnIfMissing('courses', 'description', 'TEXT');
 addColumnIfMissing('courses', 'is_active', 'INTEGER NOT NULL DEFAULT 1');
-
-// NAYA: Fee Month column
 addColumnIfMissing('student_fee_ledger', 'fee_month', 'TEXT');
+
+// NAYA: Invoices Table
+db.exec(`
+  CREATE TABLE IF NOT EXISTS invoices (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    invoice_no TEXT NOT NULL UNIQUE,
+    student_id INTEGER NOT NULL REFERENCES students(id) ON DELETE CASCADE,
+    fee_month TEXT NOT NULL,
+    total_charged INTEGER NOT NULL DEFAULT 0,
+    total_paid INTEGER NOT NULL DEFAULT 0,
+    balance INTEGER NOT NULL DEFAULT 0,
+    status TEXT NOT NULL DEFAULT 'unpaid', 
+    generated_by INTEGER REFERENCES users(id),
+    created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+    UNIQUE(student_id, fee_month)
+  );
+`);
+console.log('✓ invoices table ensured');
 
 db.exec(`UPDATE student_fee_ledger SET entry_date = date(created_at) WHERE entry_date IS NULL`);
 console.log('Migrations complete.');
