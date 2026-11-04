@@ -32,8 +32,10 @@ export function showGenerateForm(req, res) {
   });
 }
 
+// ... (imports same rahenge)
+
 export const postGenerate = db.transaction((req, res) => {
-  const { target, student_id, batch_id, fee_month } = req.body;
+  const { target, student_id, batch_id, fee_month, custom_fee } = req.body;
   let studentIds = [];
 
   if (target === 'single' && student_id) {
@@ -51,7 +53,12 @@ export const postGenerate = db.transaction((req, res) => {
 
   for (const sid of studentIds) {
     try {
-      createInvoice({ studentId: sid, feeMonth: fee_month, userId: req.session.user.id });
+      createInvoice({ 
+        studentId: sid, 
+        feeMonth: fee_month, 
+        customFeeAmount: custom_fee, // <-- Yahan se amount pass ho rahi hai
+        userId: req.session.user.id 
+      });
       successCount++;
     } catch (err) {
       errors.push(`Student ID ${sid}: ${err.message}`);
@@ -68,6 +75,8 @@ export const postGenerate = db.transaction((req, res) => {
 
   res.redirect('/invoices');
 });
+
+// ... (baqi controller functions waise hi rahenge)
 
 export function downloadPDF(req, res) {
   const inv = getInvoiceById(req.params.id);
