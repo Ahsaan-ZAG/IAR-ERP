@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title><%= title %></title><link rel="stylesheet" href="/css/app.css"></head>
+<body class="app-body">
+  <%- include('../partials/sidebar') %>
+  <div class="main-area"><%- include('../partials/navbar') %>
+    <main class="content">
+      <% if (flash) { %><div class="alert-<%= flash.type %>"><%= flash.message %></div><% } %>
+      <div class="page-header-row">
+        <div>
+          <h1 class="page-title">Backup & Restore</h1>
+          <p class="page-sub">Database snapshots. Stored in <code>backups/</code> folder.</p>
+        </div>
+        <form method="POST" action="/backups/create">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <button type="submit" class="btn-primary" style="width:auto">+ Create Backup Now</button>
+        </form>
+      </div>
+
+      <div class="alert-warning" style="margin-bottom:20px">
+        <strong>Safety note:</strong> Restoring replaces ALL current data with the selected backup.
+        A pre-restore safety backup is automatically created. Test in development before using on production.
+      </div>
+
+      <% if (backups.length === 0) { %>
+        <div class="empty-state"><p>No backups yet. Click "Create Backup Now" to start.</p></div>
+      <% } else { %>
+        <div class="table-wrap"><table class="data-table">
+          <thead><tr><th>Filename</th><th>Created</th><th>Size</th><th>Type</th><th>Actions</th></tr></thead>
+          <tbody>
+            <% backups.forEach(b => { %>
+              <tr>
+                <td><code><%= b.filename %></code></td>
+                <td><%= b.created_at.slice(0, 19).replace('T', ' ') %></td>
+                <td><%= (b.size_bytes / 1024).toFixed(1) %> KB</td>
+                <td>
+                  <% if (b.is_pre_restore) { %>
+                    <span class="badge badge-muted">pre-restore</span>
+                  <% } else { %>
+                    <span class="badge badge-success">backup</span>
+                  <% } %>
+                </td>
+                <td class="table-actions">
+                  <a href="/backups/download/<%= b.filename %>" class="btn-link">Download</a>
+                  <button type="button" class="btn-link" style="background:none;border:none;cursor:pointer;color:#DC4545;padding:0"
+                          onclick="openRestoreDialog('<%= b.filename %>')">Restore</button>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table></div>
+      <% } %>
+
+      <dialog id="restoreDialog" class="modal-dialog">
+        <form method="POST" action="/backups/restore">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <input type="hidden" name="filename" id="restoreFilename">
+          <h2 style="margin-bottom:8px">Restore Database</h2>
+          <p style="color:#DC4545;font-size:13px;margin-bottom:12px">
+            ⚠ This will replace ALL current data with <code id="restoreFilenameLabel"></code>.
+          </p>
+          <div class="form-group">
+            <label>Type <code>RESTORE</code> to confirm *</label>
+            <input type="text" name="confirm" required autocomplete="off" placeholder="RESTORE">
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn-primary" style="width:auto;background:#DC4545">Restore Database</button>
+            <button type="button" class="btn-link" onclick="document.getElementById('restoreDialog').close()">Cancel</button>
+          </div>
+        </form>
+      </dialog>
+
+      <script src="/js/backups.js"></script>
+    </main>
+  </div>
+</body>
+</html>
