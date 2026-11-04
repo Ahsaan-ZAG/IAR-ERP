@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><%- include('partials/head') %></head>
+<body class="mobile-body">
+  <%- include('partials/topbar') %>
+  <main class="mobile-main">
+    <a href="/mobile/more" class="mobile-back">← More</a>
+    <h1 class="mobile-page-title">Monthly Fees</h1>
+    <p class="mobile-page-sub">Read-only view</p>
+
+    <form method="GET" action="/mobile/monthly-fees" class="mobile-search">
+      <input type="month" name="month" value="<%= month %>" onchange="this.form.submit()" style="flex:1">
+    </form>
+
+    <div class="mobile-list">
+      <% feeRecords.forEach(s => { %>
+        <div class="mobile-list-item">
+          <div class="mobile-list-title">
+            <span><strong><%= s.name %></strong> <span class="mobile-code"><%= s.roll_no %></span></span>
+            <span class="badge badge-<%= s.status === 'paid' ? 'success' : (s.status === 'partial' ? 'warning' : 'danger') %>">
+              <%= s.status %>
+            </span>
+          </div>
+          <div class="mobile-list-sub">Charged: PKR <%= s.display_charged %> · Paid: PKR <%= s.display_paid %></div>
+          <div class="mobile-list-sub <%= s.display_balance > 0 ? 'danger' : 'success' %>">
+            Balance: <strong>PKR <%= s.display_balance %></strong>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+
+    <p class="mobile-read-only-hint">
+      Mobile view is read-only. To collect fees, use the desktop interface.
+    </p>
+  </main>
+  <%- include('partials/bottom-nav') %>
+</body>
+</html>
