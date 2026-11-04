@@ -40,6 +40,7 @@ import mobileRoutes from './routes/mobileRoutes.js';
 import settingsRoutes from './routes/settingsRoutes.js';
 import backupRoutes from './routes/backupRoutes.js';
 import invoiceRoutes from './routes/invoiceRoutes.js';
+import monthlyFeeRoutes from './routes/monthlyFeeRoutes.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -136,6 +137,7 @@ app.use('/', mobileRoutes);
 app.use('/', settingsRoutes);
 app.use('/', backupRoutes);
 app.use('/', invoiceRoutes);
+app.use('/', monthlyFeeRoutes);
 
 app.use((req, res) => res.status(404).render('errors/404', { title: 'Not Found' }));
 
