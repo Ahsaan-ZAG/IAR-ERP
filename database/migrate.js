@@ -23,6 +23,10 @@ addColumnIfMissing('assessments', 'description', 'TEXT');
 addColumnIfMissing('assessment_results', 'created_by', 'INTEGER');
 addColumnIfMissing('courses', 'description', 'TEXT');
 addColumnIfMissing('courses', 'is_active', 'INTEGER NOT NULL DEFAULT 1');
+
+// NAYA: Fee Month column
+addColumnIfMissing('student_fee_ledger', 'fee_month', 'TEXT');
+
 db.exec(`UPDATE student_fee_ledger SET entry_date = date(created_at) WHERE entry_date IS NULL`);
 console.log('Migrations complete.');
 process.exit(0);
