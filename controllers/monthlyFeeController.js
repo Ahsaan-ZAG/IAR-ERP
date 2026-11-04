@@ -4,78 +4,96 @@ import { audit } from '../services/auditService.js';
 import { todayInTimezone } from '../config/timezone.js';
 
 export function index(req, res) {
-  const month = req.query.month || todayInTimezone().slice(0, 7); // Default current month
-
-  // Fetch all active students and their fee status for the selected month
+  // Database se active students laayen
   const students = db.prepare(`
-    SELECT s.id, s.roll_no, s.name, s.father_name, b.name AS batch_name,
-           COALESCE(SUM(CASE WHEN l.entry_type = 'charge' THEN l.amount ELSE 0 END), 0) AS total_charged,
-           COALESCE(SUM(CASE WHEN l.entry_type IN ('payment', 'discount') THEN l.amount ELSE 0 END), 0) AS total_paid
+    SELECT s.id, s.roll_no, s.name, s.father_name, b.name AS batch_name
     FROM students s
     LEFT JOIN batches b ON b.id = s.current_batch_id
-    LEFT JOIN student_fee_ledger l ON l.student_id = s.id AND l.fee_month = ?
     WHERE s.status = 'active'
-    GROUP BY s.id
     ORDER BY s.roll_no
-  `).all(month);
+  `).all();
 
-  const feeRecords = students.map(s => {
-    // Agar charge nahi laga to default 200 maan lein (sirf display ke liye)
-    const charged = s.total_charged === 0 ? 200 : s.total_charged;
-    const paid = Math.abs(s.total_paid);
-    const balance = charged - paid;
-    
-    let status = 'unpaid';
-    if (balance <= 0) status = 'paid';
-    else if (paid > 0) status = 'partial';
+  // Recent collections (last 20) dikhane ke liye
+  const recentCollections = db.prepare(`
+    SELECT p.id, p.receipt_no, p.amount, p.payment_date, p.method,
+           s.name AS student_name, s.roll_no,
+           l.fee_month
+    FROM payments p
+    JOIN students s ON s.id = p.student_id
+    LEFT JOIN student_fee_ledger l ON l.id = p.ledger_id
+    WHERE l.fee_month IS NOT NULL
+    ORDER BY p.created_at DESC
+    LIMIT 20
+  `).all();
 
-    return { ...s, display_charged: charged, display_paid: paid, display_balance: balance, status };
-  });
+  const currentYear = new Date().getFullYear();
+  const currentMonth = (new Date().getMonth() + 1).toString().padStart(2, '0');
 
   res.render('monthly-fees/index', {
-    title: 'Monthly Fee Register',
+    title: 'Fee Collection',
     user: res.locals.user,
     csrfToken: res.locals.csrfToken,
-    month,
-    feeRecords,
+    students,
+    recentCollections,
+    currentYear,
+    currentMonth,
+    today: todayInTimezone(),
     flash: res.locals.flash,
   });
 }
 
 export function collectFee(req, res) {
-  const { student_id, month, amount, method } = req.body;
+  const { student_id, year, month, amount, method } = req.body;
+  
   const studentId = parseInt(student_id, 10);
   const feeAmount = parseInt(amount, 10);
+  
+  // fee_month format: "2026-11"
+  const feeMonth = `${year}-${String(month).padStart(2, '0')}`;
 
   try {
-    // 1. Check if charge exists for this month. If not, add 200 (or the collected amount).
-    const chargeExists = db.prepare("SELECT id FROM student_fee_ledger WHERE student_id = ? AND fee_month = ? AND entry_type = 'charge'").get(studentId, month);
+    if (!studentId || !feeAmount || feeAmount <= 0) {
+      throw new Error('Please fill all required fields correctly.');
+    }
+
+    // 1. Check if charge exists for this month. If not, add it (default 200)
+    const chargeExists = db.prepare(`
+      SELECT id FROM student_fee_ledger 
+      WHERE student_id = ? AND fee_month = ? AND entry_type = 'charge'
+    `).get(studentId, feeMonth);
+
     if (!chargeExists) {
       db.prepare(`
         INSERT INTO student_fee_ledger (student_id, entry_type, amount, description, fee_month, entry_date, created_by)
         VALUES (?, 'charge', ?, 'Monthly Fee', ?, ?, ?)
-      `).run(studentId, 200, month, todayInTimezone(), req.session.user.id);
+      `).run(studentId, 200, feeMonth, todayInTimezone(), req.session.user.id);
     }
 
     // 2. Record the payment
-    const { receiptNo } = createPayment({
+    const { receiptNo, paymentId } = createPayment({
       studentId,
       amount: feeAmount,
       method: method || 'cash',
-      notes: `Monthly Fee for ${month}`,
-      feeMonth: month,
+      notes: `Monthly Fee — ${feeMonth}`,
+      feeMonth: feeMonth,
       userId: req.session.user.id,
     });
 
-    audit(req, { 
-      action: 'monthly_fee_collected', module: 'fee', recordId: studentId, 
-      newValues: { month, amount: feeAmount, receipt: receiptNo } 
+    // 3. Audit log
+    audit(req, {
+      action: 'monthly_fee_collected',
+      module: 'fee',
+      recordId: studentId,
+      newValues: { fee_month: feeMonth, amount: feeAmount, receipt: receiptNo },
     });
 
-    req.session.flash = { type: 'success', message: `Fee collected for student. Receipt: ${receiptNo}` };
+    req.session.flash = {
+      type: 'success',
+      message: `✓ Fee collected! Receipt: ${receiptNo} — Amount: PKR ${feeAmount.toLocaleString()} for ${feeMonth}`,
+    };
   } catch (err) {
     req.session.flash = { type: 'error', message: err.message };
   }
 
-  res.redirect(`/monthly-fees?month=${month}`);
+  res.redirect('/monthly-fees');
 }
