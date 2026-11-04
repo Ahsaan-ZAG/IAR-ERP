@@ -1,110 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= title %></title><link rel="stylesheet" href="/css/app.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/app.css">
 </head>
 <body class="app-body">
   <%- include('../partials/sidebar') %>
-  <div class="main-area"><%- include('../partials/navbar') %>
+  <div class="main-area">
+    <%- include('../partials/navbar') %>
     <main class="content">
       <% if (flash) { %><div class="alert-<%= flash.type %>"><%= flash.message %></div><% } %>
-      
-      <div class="page-header-row">
-        <div>
-          <h1 class="page-title">Monthly Fee Register</h1>
-          <p class="page-sub">Select a month to view and collect fees.</p>
-        </div>
-        
-        <form method="GET" action="/monthly-fees" class="filter-bar" style="margin-bottom:0">
-          <label style="font-size:13px;align-self:center;font-weight:600">Select Month:</label>
-          <input type="month" name="month" value="<%= month %>" onchange="this.form.submit()">
-        </form>
-      </div>
 
-      <div class="table-wrap" style="margin-top:20px">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Roll No</th>
-              <th>Student Name</th>
-              <th>Batch</th>
-              <th>Monthly Fee</th>
-              <th>Paid</th>
-              <th>Balance</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% feeRecords.forEach(s => { %>
-              <tr>
-                <td><code><%= s.roll_no %></code></td>
-                <td><strong><%= s.name %></strong><br><span class="muted" style="font-size:11px">S/O <%= s.father_name %></span></td>
-                <td><%= s.batch_name || '—' %></td>
-                <td>PKR <%= s.display_charged %></td>
-                <td class="success">PKR <%= s.display_paid %></td>
-                <td class="<%= s.display_balance > 0 ? 'danger' : 'success' %>"><strong>PKR <%= s.display_balance %></strong></td>
-                <td>
-                  <span class="badge badge-<%= s.status === 'paid' ? 'success' : (s.status === 'partial' ? 'warning' : 'danger') %>">
-                    <%= s.status %>
-                  </span>
-                </td>
-                <td>
-                  <% if (s.status !== 'paid') { %>
-                    <!-- onclick hata kar data-attributes use kiye hain -->
-                    <button type="button" class="btn-primary btn-collect" style="width:auto;padding:6px 12px;font-size:12px" 
-                            data-id="<%= s.id %>" 
-                            data-name="<%= s.name.replace(/'/g, '&#39;') %>" 
-                            data-balance="<%= s.display_balance %>" 
-                            data-month="<%= month %>">
-                      Collect Fee
-                    </button>
-                  <% } else { %>
-                    <span style="color:#16A36A;font-size:12px;font-weight:600">✓ Cleared</span>
-                  <% } %>
-                </td>
-              </tr>
-            <% }) %>
-          </tbody>
-        </table>
-      </div>
+      <h1 class="page-title">Fee Collection</h1>
+      <p class="page-sub">Select student, month, and amount to collect fees.</p>
 
-      <!-- Payment Modal -->
-      <dialog id="payModal" class="modal-dialog">
+      <!-- ═══════ FORM ═══════ -->
+      <div class="form-card" style="max-width:720px">
         <form method="POST" action="/monthly-fees/collect">
           <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-          <input type="hidden" name="student_id" id="payStudentId">
-          <input type="hidden" name="month" id="payMonth">
-          
-          <h2 style="margin-bottom:8px">Collect Fee — <span id="payStudentName"></span></h2>
-          <p class="muted" style="font-size:13px;margin-bottom:16px">Month: <span id="payMonthLabel"></span></p>
-          
-          <div class="form-group">
-            <label>Amount to Collect (PKR) *</label>
-            <input type="number" name="amount" id="payAmount" required min="1" step="1">
-          </div>
 
           <div class="form-group">
-            <label>Payment Method *</label>
-            <select name="method" required>
-              <option value="cash">Cash</option>
-              <option value="bank">Bank Transfer</option>
-              <option value="easypaisa">Easypaisa</option>
-              <option value="jazzcash">JazzCash</option>
+            <label>Select Student *</label>
+            <select name="student_id" required>
+              <option value="">— Choose Student —</option>
+              <% students.forEach(s => { %>
+                <option value="<%= s.id %>">
+                  <%= s.roll_no %> — <%= s.name %> (S/O <%= s.father_name %>) [<%= s.batch_name || 'No Batch' %>]
+                </option>
+              <% }) %>
             </select>
           </div>
 
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="form-group">
+              <label>Year *</label>
+              <select name="year" required>
+                <% for (let y = currentYear - 2; y <= currentYear + 1; y++) { %>
+                  <option value="<%= y %>" <%= y === currentYear ? 'selected' : '' %>><%= y %></option>
+                <% } %>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Month *</label>
+              <select name="month" required>
+                <% 
+                  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+                  monthNames.forEach((name, idx) => {
+                    const val = (idx + 1).toString().padStart(2, '0');
+                %>
+                  <option value="<%= val %>" <%= val === currentMonth ? 'selected' : '' %>><%= name %></option>
+                <% }) %>
+              </select>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="form-group">
+              <label>Amount (PKR) *</label>
+              <input type="number" name="amount" required min="1" step="1" value="200" placeholder="200">
+            </div>
+
+            <div class="form-group">
+              <label>Payment Method *</label>
+              <select name="method" required>
+                <option value="cash">Cash</option>
+                <option value="bank">Bank Transfer</option>
+                <option value="easypaisa">Easypaisa</option>
+                <option value="jazzcash">JazzCash</option>
+                <option value="cheque">Cheque</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="alert-info" style="margin-bottom:16px">
+            <strong>Note:</strong> This will record the fee charge (if not already added) and receive the payment in one step. A receipt will be generated.
+          </div>
+
           <div class="form-actions">
-            <button type="submit" class="btn-primary" style="width:auto">Confirm Payment</button>
-            <!-- Cancel button ko class di hai taake JS se handle ho sake -->
-            <button type="button" class="btn-link btn-cancel">Cancel</button>
+            <button type="submit" class="btn-primary" style="width:auto">Collect Fee</button>
           </div>
         </form>
-      </dialog>
+      </div>
 
-      <!-- External JS file link ki hai -->
-      <script src="/js/monthly-fees.js"></script>
+      <!-- ═══════ RECENT COLLECTIONS ═══════ -->
+      <h2 style="margin:32px 0 12px">Recent Collections</h2>
+      <% if (recentCollections.length === 0) { %>
+        <div class="empty-state"><p>No collections yet. Use the form above to collect a fee.</p></div>
+      <% } else { %>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Receipt</th>
+                <th>Date</th>
+                <th>Student</th>
+                <th>Fee Month</th>
+                <th>Amount</th>
+                <th>Method</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% recentCollections.forEach(c => { %>
+                <tr>
+                  <td><code><%= c.receipt_no %></code></td>
+                  <td><%= c.payment_date %></td>
+                  <td><strong><%= c.student_name %></strong> <span class="muted">(<%= c.roll_no %>)</span></td>
+                  <td><%= c.fee_month || '—' %></td>
+                  <td class="success"><strong>PKR <%= c.amount.toLocaleString() %></strong></td>
+                  <td><%= c.method %></td>
+                  <td><a href="/payments/<%= c.id %>" class="btn-link" target="_blank">Receipt</a></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      <% } %>
     </main>
   </div>
 </body>
