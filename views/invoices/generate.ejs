@@ -13,9 +13,17 @@
         <form method="POST" action="/invoices/generate">
           <input type="hidden" name="_csrf" value="<%= csrfToken %>">
           
-          <div class="form-group">
-            <label>Fee Month *</label>
-            <input type="month" name="fee_month" required value="<%= formData.fee_month %>">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="form-group">
+              <label>Fee Month *</label>
+              <input type="month" name="fee_month" required value="<%= formData.fee_month %>">
+            </div>
+            <div class="form-group">
+              <label>Monthly Fee (PKR) *</label>
+              <!-- Default 200 set kiya gaya hai -->
+              <input type="number" name="custom_fee" required min="1" value="200" placeholder="e.g. 200">
+              <p class="muted" style="font-size:11px;margin-top:4px">Agar student ne fee jama ki hai lekin charge nahi laga, to system ye amount khud charge kar dega.</p>
+            </div>
           </div>
 
           <div class="form-group">
