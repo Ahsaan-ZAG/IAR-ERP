@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title><link rel="stylesheet" href="/css/app.css">
+</head>
+<body class="app-body">
+  <%- include('../partials/sidebar') %>
+  <div class="main-area"><%- include('../partials/navbar') %>
+    <main class="content">
+      <div class="page-header-row">
+        <div>
+          <h1 class="page-title">Bulk Fee Charge</h1>
+          <p class="page-sub">Charge fees to multiple students at once (e.g., Monthly Fee).</p>
+        </div>
+        <a href="/fees" class="btn-link" style="align-self:center">← Back to Fees</a>
+      </div>
+
+      <div class="form-card" style="max-width:640px">
+        <% if (formErrors._general) { %><div class="alert-error"><%= formErrors._general %></div><% } %>
+        
+        <form method="POST" action="/fees/bulk">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+          <div class="form-group">
+            <label>Apply To *</label>
+            <select name="batch_id">
+              <option value="">All Active Students (School-wide)</option>
+              <% batches.forEach(b => { %>
+                <option value="<%= b.id %>" <%= formData.batch_id == b.id ? 'selected' : '' %>>
+                  <%= b.name %>
+                </option>
+              <% }) %>
+            </select>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="form-group">
+              <label>Fee Month *</label>
+              <input type="month" name="fee_month" required value="<%= formData.fee_month || '' %>">
+            </div>
+            <div class="form-group">
+              <label>Amount (PKR) *</label>
+              <input type="number" name="amount" required min="1" step="1" 
+                     value="<%= formData.amount || '' %>" placeholder="e.g. 2000">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Due Date</label>
+            <input type="date" name="due_date" value="<%= formData.due_date || today %>">
+          </div>
+
+          <div class="form-group">
+            <label>Description *</label>
+            <input type="text" name="description" required maxlength="200" 
+                   value="<%= formData.description || 'Monthly Fee' %>" 
+                   placeholder="e.g. Monthly Fee">
+          </div>
+
+          <div class="alert-info" style="margin-bottom:16px">
+            <strong>Note:</strong> This will add a "Charge" entry to the ledger of every selected student for the chosen month. It does not generate invoices.
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn-primary" style="width:auto">Apply Charges</button>
+            <a href="/fees" class="btn-link">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
