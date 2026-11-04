@@ -4,9 +4,12 @@
   <div class="main-area"><%- include('../partials/navbar') %>
     <main class="content">
       <% if (flash) { %><div class="alert-<%= flash.type %>"><%= flash.message %></div><% } %>
+      
       <div class="page-header-row">
         <div><h1 class="page-title">Fee Management</h1><p class="page-sub">Total: <%= pagination.total %> student(s)</p></div>
+        <a href="/fees/bulk" class="btn-primary" style="width:auto">+ Bulk Fee Charge</a>
       </div>
+
       <form method="GET" action="/fees" class="filter-bar">
         <input type="text" name="search" placeholder="Search name, father, roll no" value="<%= filters.search %>" style="flex:1">
         <select name="batch"><option value="">All Batches</option>
@@ -17,6 +20,7 @@
         <button type="submit" class="btn-secondary">Filter</button>
         <a href="/fees" class="btn-link">Reset</a>
       </form>
+
       <% if (students.length === 0) { %><div class="empty-state"><p>No students found.</p></div>
       <% } else { %>
         <div class="table-wrap"><table class="data-table">
@@ -28,7 +32,7 @@
                 <td><a href="/fees/student/<%= s.id %>"><%= s.name %></a></td>
                 <td><%= s.father_name %></td>
                 <td><%= s.batch_name || '—' %></td>
-                <td><span class="<%= s.balance > 0 ? 'ledger-amount positive' : (s.balance < 0 ? 'ledger-amount negative' : '') %>">PKR <%= s.balance.toLocaleString() %></span></td>
+                <td><span class="ledger-amount <%= s.balance > 0 ? 'positive' : (s.balance < 0 ? 'negative' : '') %>">PKR <%= s.balance.toLocaleString() %></span></td>
                 <td><a href="/fees/student/<%= s.id %>" class="btn-link">Open</a></td>
               </tr>
             <% }) %>
