@@ -15,12 +15,23 @@ export function generateInvoiceNo() {
   return `INV-${year}-${String(counter).padStart(4, '0')}`;
 }
 
-export const createInvoice = db.transaction(({ studentId, feeMonth, userId }) => {
-  // Check if already exists
+export const createInvoice = db.transaction(({ studentId, feeMonth, customFeeAmount, userId }) => {
+  // 1. Check if already exists
   const existing = db.prepare('SELECT id FROM invoices WHERE student_id = ? AND fee_month = ?').get(studentId, feeMonth);
   if (existing) throw new Error(`Invoice for ${feeMonth} already exists for this student.`);
 
-  // Get ledger data for this month
+  // 2. Check if a charge exists for this month. If not, add it automatically.
+  const chargeExists = db.prepare("SELECT id FROM student_fee_ledger WHERE student_id = ? AND fee_month = ? AND entry_type = 'charge'").get(studentId, feeMonth);
+  
+  if (!chargeExists) {
+    const defaultFee = customFeeAmount ? parseInt(customFeeAmount, 10) : 200; // Default 200
+    db.prepare(`
+      INSERT INTO student_fee_ledger (student_id, entry_type, amount, description, fee_month, entry_date, created_by)
+      VALUES (?, 'charge', ?, 'Monthly Fee', ?, ?, ?)
+    `).run(studentId, defaultFee, feeMonth, todayInTimezone(), userId);
+  }
+
+  // 3. Get ledger data for this month (Now it will definitely have a charge)
   const ledger = db.prepare(`
     SELECT 
       SUM(CASE WHEN entry_type = 'charge' THEN amount ELSE 0 END) AS charged,
@@ -28,10 +39,6 @@ export const createInvoice = db.transaction(({ studentId, feeMonth, userId }) =>
     FROM student_fee_ledger
     WHERE student_id = ? AND fee_month = ?
   `).get(studentId, feeMonth);
-
-  if (!ledger || ledger.charged === 0) {
-    throw new Error(`No fee charges found for ${feeMonth}. Please add charges first.`);
-  }
 
   const balance = ledger.charged + ledger.paid;
   let status = 'unpaid';
@@ -60,7 +67,6 @@ export function getInvoiceById(id) {
   
   if (!invoice) return null;
 
-  // Get the specific transactions for this month
   invoice.transactions = db.prepare(`
     SELECT * FROM student_fee_ledger
     WHERE student_id = ? AND fee_month = ?
