@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title><link rel="stylesheet" href="/css/app.css">
+</head>
+<body class="app-body">
+  <%- include('../partials/sidebar') %>
+  <div class="main-area"><%- include('../partials/navbar') %>
+    <main class="content">
+      <% if (flash) { %><div class="alert-<%= flash.type %>"><%= flash.message %></div><% } %>
+      
+      <div class="page-header-row">
+        <div>
+          <h1 class="page-title">Monthly Fee Register</h1>
+          <p class="page-sub">Select a month to view and collect fees.</p>
+        </div>
+        
+        <form method="GET" action="/monthly-fees" class="filter-bar" style="margin-bottom:0">
+          <label style="font-size:13px;align-self:center;font-weight:600">Select Month:</label>
+          <input type="month" name="month" value="<%= month %>" onchange="this.form.submit()">
+        </form>
+      </div>
+
+      <div class="table-wrap" style="margin-top:20px">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Roll No</th>
+              <th>Student Name</th>
+              <th>Batch</th>
+              <th>Monthly Fee</th>
+              <th>Paid</th>
+              <th>Balance</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% feeRecords.forEach(s => { %>
+              <tr>
+                <td><code><%= s.roll_no %></code></td>
+                <td><strong><%= s.name %></strong><br><span class="muted" style="font-size:11px">S/O <%= s.father_name %></span></td>
+                <td><%= s.batch_name || '—' %></td>
+                <td>PKR <%= s.display_charged %></td>
+                <td class="success">PKR <%= s.display_paid %></td>
+                <td class="<%= s.display_balance > 0 ? 'danger' : 'success' %>"><strong>PKR <%= s.display_balance %></strong></td>
+                <td>
+                  <span class="badge badge-<%= s.status === 'paid' ? 'success' : (s.status === 'partial' ? 'warning' : 'danger') %>">
+                    <%= s.status %>
+                  </span>
+                </td>
+                <td>
+                  <% if (s.status !== 'paid') { %>
+                    <button type="button" class="btn-primary" style="width:auto;padding:6px 12px;font-size:12px" 
+                            onclick="openPayModal(<%= s.id %>, '<%= s.name %>', <%= s.display_balance %>, '<%= month %>')">
+                      Collect Fee
+                    </button>
+                  <% } else { %>
+                    <span style="color:#16A36A;font-size:12px;font-weight:600">✓ Cleared</span>
+                  <% } %>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Payment Modal -->
+      <dialog id="payModal" class="modal-dialog">
+        <form method="POST" action="/monthly-fees/collect">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <input type="hidden" name="student_id" id="payStudentId">
+          <input type="hidden" name="month" id="payMonth">
+          
+          <h2 style="margin-bottom:8px">Collect Fee — <span id="payStudentName"></span></h2>
+          <p class="muted" style="font-size:13px;margin-bottom:16px">Month: <span id="payMonthLabel"></span></p>
+          
+          <div class="form-group">
+            <label>Amount to Collect (PKR) *</label>
+            <input type="number" name="amount" id="payAmount" required min="1" step="1">
+          </div>
+
+          <div class="form-group">
+            <label>Payment Method *</label>
+            <select name="method" required>
+              <option value="cash">Cash</option>
+              <option value="bank">Bank Transfer</option>
+              <option value="easypaisa">Easypaisa</option>
+              <option value="jazzcash">JazzCash</option>
+            </select>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn-primary" style="width:auto">Confirm Payment</button>
+            <button type="button" class="btn-link" onclick="document.getElementById('payModal').close()">Cancel</button>
+          </div>
+        </form>
+      </dialog>
+
+      <script>
+        function openPayModal(id, name, balance, month) {
+          document.getElementById('payStudentId').value = id;
+          document.getElementById('payStudentName').textContent = name;
+          document.getElementById('payMonth').value = month;
+          document.getElementById('payMonthLabel').textContent = month;
+          document.getElementById('payAmount').value = balance;
+          document.getElementById('payModal').showModal();
+        }
+      </script>
+    </main>
+  </div>
+</body>
+</html>
