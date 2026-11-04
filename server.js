@@ -39,6 +39,7 @@ import aiRoutes from './routes/aiRoutes.js';
 import mobileRoutes from './routes/mobileRoutes.js';
 import settingsRoutes from './routes/settingsRoutes.js';
 import backupRoutes from './routes/backupRoutes.js';
+import invoiceRoutes from './routes/invoiceRoutes.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -134,6 +135,7 @@ app.use('/', aiRoutes);
 app.use('/', mobileRoutes);
 app.use('/', settingsRoutes);
 app.use('/', backupRoutes);
+app.use('/', invoiceRoutes);
 
 app.use((req, res) => res.status(404).render('errors/404', { title: 'Not Found' }));
 
