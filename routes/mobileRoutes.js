@@ -4,13 +4,10 @@ import {
   dashboard, students, studentShow, teachers, batches, batchShow,
   attendance, fees, feeStudent, payments, holidays, sessions,
   notifications, reports, analytics, more,
+  monthlyFees, invoices  // <-- Naye functions import karein
 } from '../controllers/mobileController.js';
 
 const router = Router();
-
-// All mobile routes are GET-only read-only views.
-// Write attempts are blocked by global mobileReadOnly middleware
-// when session.access_mode === 'mobile_readonly'.
 
 router.use('/mobile', (req, res, next) => {
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
@@ -34,5 +31,9 @@ router.get('/mobile/notifications', requireAuth, notifications);
 router.get('/mobile/reports', requireAuth, reports);
 router.get('/mobile/analytics', requireAuth, analytics);
 router.get('/mobile/more', requireAuth, more);
+
+// NAYE ROUTES
+router.get('/mobile/monthly-fees', requireAuth, monthlyFees);
+router.get('/mobile/invoices', requireAuth, invoices);
 
 export default router;
