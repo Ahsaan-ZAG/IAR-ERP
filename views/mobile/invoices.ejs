@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><%- include('partials/head') %></head>
+<body class="mobile-body">
+  <%- include('partials/topbar') %>
+  <main class="mobile-main">
+    <a href="/mobile/more" class="mobile-back">← More</a>
+    <h1 class="mobile-page-title">Invoices</h1>
+    <p class="mobile-page-sub">Read-only · Tap to view PDF</p>
+
+    <% if (invoices.length === 0) { %>
+      <div class="mobile-empty">No invoices generated yet.</div>
+    <% } else { %>
+      <div class="mobile-list">
+        <% invoices.forEach(i => { %>
+          <a href="/invoices/<%= i.id %>/pdf" target="_blank" class="mobile-list-item mobile-list-link">
+            <div class="mobile-list-title">
+              <span><strong><%= i.invoice_no %></strong></span>
+              <span class="badge badge-<%= i.status === 'paid' ? 'success' : (i.status === 'partial' ? 'warning' : 'danger') %>">
+                <%= i.status %>
+              </span>
+            </div>
+            <div class="mobile-list-sub"><%= i.student_name %> (<%= i.roll_no %>)</div>
+            <div class="mobile-list-sub">Month: <%= i.fee_month %> · Total: PKR <%= i.total_charged.toLocaleString() %></div>
+            <div class="mobile-list-sub <%= i.balance > 0 ? 'danger' : 'success' %>">
+              Balance: <strong>PKR <%= i.balance.toLocaleString() %></strong>
+            </div>
+          </a>
+        <% }) %>
+      </div>
+    <% } %>
+
+    <p class="mobile-read-only-hint">
+      To generate invoices, use the desktop interface.
+    </p>
+  </main>
+  <%- include('partials/bottom-nav') %>
+</body>
+</html>
