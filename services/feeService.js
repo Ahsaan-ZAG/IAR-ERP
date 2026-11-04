@@ -5,7 +5,6 @@ export function getStudentBalance(studentId) {
   return db.prepare('SELECT COALESCE(SUM(amount), 0) AS balance FROM student_fee_ledger WHERE student_id = ?').get(studentId).balance;
 }
 
-// NAYA: Student ka 12 mahino ka hisaab nikalne ke liye
 export function getStudentMonthlySummary(studentId, year) {
   const rows = db.prepare(`
     SELECT fee_month,
@@ -23,7 +22,7 @@ export function getStudentMonthlySummary(studentId, year) {
     const record = rows.find(r => r.fee_month === key) || { charged: 0, paid: 0 };
     summary[key] = {
       charged: record.charged,
-      paid: Math.abs(record.paid), // paid negative mein hota hai ledger mein
+      paid: Math.abs(record.paid),
       balance: record.charged + record.paid
     };
   }
@@ -79,7 +78,24 @@ export const addBulkCharge = db.transaction(({ batchId, amount, description, due
   return { count: students.length };
 });
 
-// ... (baqi discount / adjustment functions waise hi rahenge) ...
+export const addDiscount = db.transaction(({ studentId, amount, description, userId }) => {
+  if (!Number.isInteger(amount) || amount <= 0) throw new Error('Amount must be a positive integer');
+  const info = db.prepare(`
+    INSERT INTO student_fee_ledger (student_id, entry_type, amount, description, entry_date, created_by)
+    VALUES (?, 'discount', ?, ?, ?, ?)
+  `).run(studentId, -amount, description, todayInTimezone(), userId);
+  return Number(info.lastInsertRowid);
+});
+
+export const addAdjustment = db.transaction(({ studentId, amount, direction, description, userId }) => {
+  if (!Number.isInteger(amount) || amount <= 0) throw new Error('Amount must be a positive integer');
+  const signed = direction === 'subtract' ? -amount : amount;
+  const info = db.prepare(`
+    INSERT INTO student_fee_ledger (student_id, entry_type, amount, description, entry_date, created_by)
+    VALUES (?, 'adjustment', ?, ?, ?, ?)
+  `).run(studentId, signed, description, todayInTimezone(), userId);
+  return Number(info.lastInsertRowid);
+});
 
 export function listStudentsWithBalance({ search, batchId, onlyDefaulters, page = 1, pageSize = 20 }) {
   const cond = ["s.status = 'active'"];
