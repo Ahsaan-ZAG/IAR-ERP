@@ -1,0 +1,54 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title><%= title %></title><link rel="stylesheet" href="/css/app.css"></head>
+<body class="app-body">
+  <%- include('../partials/sidebar') %>
+  <div class="main-area"><%- include('../partials/navbar') %>
+    <main class="content">
+      <% if (flash) { %><div class="alert-<%= flash.type %>"><%= flash.message %></div><% } %>
+      
+      <div class="page-header-row">
+        <div><h1 class="page-title">Monthly Invoices</h1><p class="page-sub">Total: <%= pagination.total %> invoice(s)</p></div>
+        <a href="/invoices/generate" class="btn-primary" style="width:auto">+ Generate Invoices</a>
+      </div>
+
+      <form method="GET" action="/invoices" class="filter-bar">
+        <input type="text" name="search" placeholder="Search student, roll no, invoice no" value="<%= filters.search %>" style="flex:1">
+        <input type="month" name="month" value="<%= filters.month %>">
+        <select name="status">
+          <option value="">All Status</option>
+          <option value="unpaid" <%= filters.status === 'unpaid' ? 'selected' : '' %>>Unpaid</option>
+          <option value="partial" <%= filters.status === 'partial' ? 'selected' : '' %>>Partial</option>
+          <option value="paid" <%= filters.status === 'paid' ? 'selected' : '' %>>Paid</option>
+        </select>
+        <button type="submit" class="btn-secondary">Filter</button>
+        <a href="/invoices" class="btn-link">Reset</a>
+      </form>
+
+      <% if (invoices.length === 0) { %><div class="empty-state"><p>No invoices found.</p></div>
+      <% } else { %>
+        <div class="table-wrap"><table class="data-table">
+          <thead><tr><th>Invoice No</th><th>Student</th><th>Month</th><th>Total</th><th>Paid</th><th>Balance</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            <% invoices.forEach(i => { %>
+              <tr>
+                <td><code><%= i.invoice_no %></code></td>
+                <td><a href="/students/<%= i.student_id %>"><%= i.student_name %></a> <span class="muted">(<%= i.roll_no %>)</span></td>
+                <td><%= i.fee_month %></td>
+                <td>PKR <%= i.total_charged.toLocaleString() %></td>
+                <td class="success">PKR <%= i.total_paid.toLocaleString() %></td>
+                <td class="<%= i.balance > 0 ? 'danger' : 'success' %>"><strong>PKR <%= i.balance.toLocaleString() %></strong></td>
+                <td>
+                  <span class="badge badge-<%= i.status === 'paid' ? 'success' : (i.status === 'partial' ? 'warning' : 'danger') %>">
+                    <%= i.status %>
+                  </span>
+                </td>
+                <td>
+                  <a href="/invoices/<%= i.id %>/pdf" target="_blank" class="btn-link">Print PDF</a>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table></div>
+      <% } %>
+    </main>
+  </div>
+</body></html>
