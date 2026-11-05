@@ -1,5 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
-  // 1. Prefetch Links on Hover (Page pehle se load kar lo)
+  // 1. Page Transition Fade-In
+  document.body.style.opacity = '0';
+  document.body.style.transition = 'opacity 0.15s ease-in-out';
+  requestAnimationFrame(() => {
+    document.body.style.opacity = '1';
+  });
+
+  // 2. Prefetch Links on Hover (Instant Load)
   const links = document.querySelectorAll('a');
   links.forEach(link => {
     if (
@@ -22,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // 2. Top Loading Bar (Click karne par orange line chalegi)
+  // 3. Top Loading Bar + Fade Out on Click
   const bar = document.createElement('div');
   bar.id = 'top-progress-bar';
   document.body.appendChild(bar);
@@ -31,6 +38,10 @@ document.addEventListener('DOMContentLoaded', () => {
     link.addEventListener('click', (e) => {
       if (link.target === '_blank' || e.ctrlKey || e.metaKey || link.href.includes('javascript:') || link.href.includes('logout')) return;
       
+      // Page fade out (andhera)
+      document.body.style.opacity = '0.5';
+
+      // Loading bar start
       bar.style.width = '20%';
       bar.style.opacity = '1';
       setTimeout(() => { bar.style.width = '60%'; }, 150);
@@ -38,7 +49,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Page unload hone par bar ko 100% karo
   window.addEventListener('beforeunload', () => {
     bar.style.width = '100%';
     bar.style.opacity = '0';
