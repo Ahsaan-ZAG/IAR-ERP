@@ -13,7 +13,7 @@
     "db:migrate": "node database/migrate.js",
     "db:seed": "node database/seed.js",
     "test": "node --test tests/",
-    "db:clear": "node database/clear.js"  <--- Ye nayi line add karein
+    "db:clear": "node database/clear.js"
   },
   "allowScripts": {
     "better-sqlite3": true,
