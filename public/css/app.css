@@ -1652,3 +1652,16 @@ a {
 .modal-dialog h2 {
   font-size: 18px;
 }
+/* Top Loading Bar */
+#top-progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: #F47B20;
+  width: 0%;
+  opacity: 0;
+  z-index: 99999;
+  transition: width 0.3s ease, opacity 0.3s ease;
+  box-shadow: 0 0 10px #F47B20;
+}
