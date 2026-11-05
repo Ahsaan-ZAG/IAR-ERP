@@ -9,7 +9,6 @@ import { listHolidays } from '../services/holidayService.js';
 import { listNotifications } from '../services/notificationService.js';
 import { REPORT_LIST } from '../services/reportService.js';
 import { ALLOWED_CHARTS } from '../services/analyticsService.js';
-import { getStudentBalance, getStudentLedger, listStudentsWithBalance } from '../services/feeService.js';
 
 function sum(query, ...params) {
   return db.prepare(query).get(...params)?.total ?? 0;
@@ -247,6 +246,8 @@ export function more(req, res) {
     currentPath: req.path,
   });
 }
+
+// NAYA: Monthly Fee Read-Only View
 export function monthlyFees(req, res) {
   const month = req.query.month || todayInTimezone().slice(0, 7);
 
