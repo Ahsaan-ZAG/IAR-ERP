@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en"><head><%- include('partials/head') %></head>
+<body class="mobile-body">
+  <%- include('partials/topbar') %>
+  <main class="mobile-main">
+    <h1 class="mobile-page-title">Students</h1>
+    <p class="mobile-page-sub"><%= pagination.total %> active student(s)</p>
+
+    <form method="GET" action="/mobile/students" class="mobile-search">
+      <input type="text" name="search" placeholder="Search name, father, roll no"
+             value="<%= filters.search %>">
+      <button type="submit">Go</button>
+    </form>
+
+    <% if (students.length === 0) { %>
+      <div class="mobile-empty">No students found.</div>
+    <% } else { %>
+      <div class="mobile-list">
+        <% students.forEach(s => { %>
+          <a href="/mobile/students/<%= s.id %>" class="mobile-list-item mobile-list-link">
+            <div class="mobile-list-title"><%= s.name %></div>
+            <div class="mobile-list-sub">
+              <span class="mobile-code"><%= s.roll_no %></span>
+              · <%= s.batch_name || 'No batch' %>
+            </div>
+            <div class="mobile-list-sub">Father: <%= s.father_name %></div>
+          </a>
+        <% }) %>
+      </div>
+    <% } %>
+  </main>
+  <%- include('partials/bottom-nav') %>
+</body>
+</html>

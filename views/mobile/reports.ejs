@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en"><head><%- include('partials/head') %></head>
+<body class="mobile-body">
+  <%- include('partials/topbar') %>
+  <main class="mobile-main">
+    <a href="/mobile/more" class="mobile-back">← More</a>
+    <h1 class="mobile-page-title">Reports</h1>
+    <p class="mobile-page-sub">Read-only downloads (PDF or CSV)</p>
+
+    <div class="mobile-list">
+      <% reports.forEach(r => { %>
+        <div class="mobile-list-item">
+          <div class="mobile-list-title"><%= r.title %></div>
+          <div class="mobile-list-sub">
+            <a href="/reports/pdf/<%= r.key %>?from=<%= monthStart %>&to=<%= today %>" target="_blank" class="btn-link">PDF</a>
+            &nbsp;·&nbsp;
+            <a href="/reports/csv/<%= r.key %>?from=<%= monthStart %>&to=<%= today %>" target="_blank" class="btn-link">CSV</a>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  </main>
+  <%- include('partials/bottom-nav') %>
+</body>
+</html>

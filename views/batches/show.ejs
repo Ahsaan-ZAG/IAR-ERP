@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><title><%= title %></title>
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body class="app-body">
+  <%- include('../partials/sidebar') %>
+  <div class="main-area">
+    <%- include('../partials/navbar') %>
+    <main class="content">
+      <% if (flash) { %><div class="alert-<%= flash.type %>"><%= flash.message %></div><% } %>
+      <h1 class="page-title"><%= batch.name %></h1>
+      <p class="page-sub"><%= batch.start_time %> – <%= batch.end_time %> · <%= batch.active_students %> active students</p>
+
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-label">This Month Sessions</div><div class="stat-value"><%= completion.total %></div></div>
+        <div class="stat-card"><div class="stat-label">Completed</div><div class="stat-value success"><%= completion.completed %></div></div>
+        <div class="stat-card"><div class="stat-label">Missed</div><div class="stat-value danger"><%= completion.missed %></div></div>
+        <div class="stat-card"><div class="stat-label">Completion %</div><div class="stat-value"><%= completion.percentage %>%</div></div>
+      </div>
+
+      <div class="two-col">
+        <section class="panel">
+          <h2>Students (<%= students.length %>)</h2>
+          <% if (students.length === 0) { %><p class="muted">No students in this batch.</p>
+          <% } else { %>
+            <table class="data-table">
+              <thead><tr><th>Roll No</th><th>Name</th><th>Status</th></tr></thead>
+              <tbody>
+                <% students.forEach(s => { %>
+                  <tr>
+                    <td><a href="/students/<%= s.id %>"><code><%= s.roll_no %></code></a></td>
+                    <td><%= s.name %></td>
+                    <td><span class="badge <%= s.status === 'active' ? 'badge-success' : 'badge-muted' %>"><%= s.status %></span></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          <% } %>
+        </section>
+
+        <section class="panel">
+          <h2>Recent Sessions</h2>
+          <% if (sessions.length === 0) { %><p class="muted">No sessions yet.</p>
+          <% } else { %>
+            <table class="data-table">
+              <thead><tr><th>Date</th><th>Status</th><th>Teacher</th></tr></thead>
+              <tbody>
+                <% sessions.forEach(s => { %>
+                  <tr>
+                    <td><a href="/batch-sessions/<%= s.id %>"><%= s.session_date %></a></td>
+                    <td><span class="badge <%= s.status === 'completed' ? 'badge-success' : 'badge-muted' %>"><%= s.status %></span></td>
+                    <td><%= s.teachers || '—' %></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          <% } %>
+        </section>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

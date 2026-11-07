@@ -1,0 +1,41 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title><%= title %></title><link rel="stylesheet" href="/css/app.css"></head>
+<body class="app-body">
+  <%- include('../partials/sidebar') %>
+  <div class="main-area"><%- include('../partials/navbar') %>
+    <main class="content">
+      <% if (flash) { %><div class="alert-<%= flash.type %>"><%= flash.message %></div><% } %>
+      <h1 class="page-title"><%= targetUser.display_name %></h1>
+      <p class="page-sub"><code><%= targetUser.username %></code> · <%= targetUser.role %> · Created <%= targetUser.created_at.slice(0, 10) %></p>
+
+      <div class="form-card" style="margin-bottom:20px">
+        <h3 style="margin-bottom:12px">Profile</h3>
+        <form method="POST" action="/users/<%= targetUser.id %>">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <div class="form-group"><label>Display Name *</label><input type="text" name="display_name" required value="<%= targetUser.display_name %>"></div>
+          <div class="form-group"><label>Role *</label>
+            <select name="role" required>
+              <option value="teacher" <%= targetUser.role === 'teacher' ? 'selected' : '' %>>Teacher</option>
+              <option value="admin" <%= targetUser.role === 'admin' ? 'selected' : '' %>>Admin</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+              <input type="checkbox" name="is_active" value="1" <%= targetUser.is_active ? 'checked' : '' %>>
+              Account Active
+            </label>
+          </div>
+          <div class="form-actions"><button type="submit" class="btn-primary" style="width:auto">Save Changes</button></div>
+        </form>
+      </div>
+
+      <div class="form-card">
+        <h3 style="margin-bottom:12px">Reset Password</h3>
+        <form method="POST" action="/users/<%= targetUser.id %>/reset-password">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <div class="form-group"><label>New Password * (min 8 chars)</label><input type="password" name="new_password" required minlength="8" maxlength="200"></div>
+          <div class="form-actions"><button type="submit" class="btn-primary" style="width:auto;background:#DC4545">Reset Password</button></div>
+        </form>
+      </div>
+    </main>
+  </div>
+</body></html>

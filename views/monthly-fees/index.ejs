@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body class="app-body">
+  <%- include('../partials/sidebar') %>
+  <div class="main-area">
+    <%- include('../partials/navbar') %>
+    <main class="content">
+      <% if (flash) { %><div class="alert-<%= flash.type %>"><%= flash.message %></div><% } %>
+
+      <h1 class="page-title">Fee Collection</h1>
+      <p class="page-sub">Select student, month, and amount to collect fees.</p>
+
+      <!-- ═══════ FORM ═══════ -->
+      <div class="form-card" style="max-width:720px">
+        <form method="POST" action="/monthly-fees/collect">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+          <div class="form-group">
+            <label>Select Student *</label>
+            <select name="student_id" required>
+              <option value="">— Choose Student —</option>
+              <% students.forEach(s => { %>
+                <option value="<%= s.id %>">
+                  <%= s.roll_no %> — <%= s.name %> (S/O <%= s.father_name %>) [<%= s.batch_name || 'No Batch' %>]
+                </option>
+              <% }) %>
+            </select>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="form-group">
+              <label>Year *</label>
+              <select name="year" required>
+                <% for (let y = currentYear - 2; y <= currentYear + 1; y++) { %>
+                  <option value="<%= y %>" <%= y === currentYear ? 'selected' : '' %>><%= y %></option>
+                <% } %>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Month *</label>
+              <select name="month" required>
+                <% 
+                  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+                  monthNames.forEach((name, idx) => {
+                    const val = (idx + 1).toString().padStart(2, '0');
+                %>
+                  <option value="<%= val %>" <%= val === currentMonth ? 'selected' : '' %>><%= name %></option>
+                <% }) %>
+              </select>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="form-group">
+              <label>Amount (PKR) *</label>
+              <input type="number" name="amount" required min="1" step="1" value="200" placeholder="200">
+            </div>
+
+            <div class="form-group">
+              <label>Payment Method *</label>
+              <select name="method" required>
+                <option value="cash">Cash</option>
+                <option value="bank">Bank Transfer</option>
+                <option value="easypaisa">Easypaisa</option>
+                <option value="jazzcash">JazzCash</option>
+                <option value="cheque">Cheque</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="alert-info" style="margin-bottom:16px">
+            <strong>Note:</strong> This will record the fee charge (if not already added) and receive the payment in one step. A receipt will be generated.
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn-primary" style="width:auto">Collect Fee</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- ═══════ RECENT COLLECTIONS ═══════ -->
+      <h2 style="margin:32px 0 12px">Recent Collections</h2>
+      <% if (recentCollections.length === 0) { %>
+        <div class="empty-state"><p>No collections yet. Use the form above to collect a fee.</p></div>
+      <% } else { %>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Receipt</th>
+                <th>Date</th>
+                <th>Student</th>
+                <th>Fee Month</th>
+                <th>Amount</th>
+                <th>Method</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% recentCollections.forEach(c => { %>
+                <tr>
+                  <td><code><%= c.receipt_no %></code></td>
+                  <td><%= c.payment_date %></td>
+                  <td><strong><%= c.student_name %></strong> <span class="muted">(<%= c.roll_no %>)</span></td>
+                  <td><%= c.fee_month || '—' %></td>
+                  <td class="success"><strong>PKR <%= c.amount.toLocaleString() %></strong></td>
+                  <td><%= c.method %></td>
+                  <td><a href="/payments/<%= c.id %>" class="btn-link" target="_blank">Receipt</a></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      <% } %>
+    </main>
+  </div>
+</body>
+</html>

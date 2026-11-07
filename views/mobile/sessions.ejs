@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en"><head><%- include('partials/head') %></head>
+<body class="mobile-body">
+  <%- include('partials/topbar') %>
+  <main class="mobile-main">
+    <a href="/mobile/more" class="mobile-back">← More</a>
+    <h1 class="mobile-page-title">Batch Sessions</h1>
+    <p class="mobile-page-sub"><%= date %></p>
+
+    <% if (sessions.length === 0) { %>
+      <div class="mobile-empty">No sessions for this date.</div>
+    <% } else { %>
+      <div class="mobile-list">
+        <% sessions.forEach(s => { %>
+          <div class="mobile-list-item">
+            <div class="mobile-list-title"><%= s.batch_name %></div>
+            <div class="mobile-list-sub"><%= s.scheduled_start %> – <%= s.scheduled_end %></div>
+            <div class="mobile-list-sub">
+              <span class="badge <%= s.status === 'completed' ? 'badge-success' : 'badge-muted' %>"><%= s.status %></span>
+              <%= s.topic_covered ? ' · ' + s.topic_covered : '' %>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+  </main>
+  <%- include('partials/bottom-nav') %>
+</body>
+</html>

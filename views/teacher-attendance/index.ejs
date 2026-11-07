@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><title><%= title %></title>
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body class="app-body">
+  <%- include('../partials/sidebar') %>
+  <div class="main-area">
+    <%- include('../partials/navbar') %>
+    <main class="content">
+      <% if (flash) { %><div class="alert-<%= flash.type %>"><%= flash.message %></div><% } %>
+      <h1 class="page-title">Teacher Attendance</h1>
+      <p class="page-sub">Date: <%= date %></p>
+
+      <% if (!isAdmin) { %>
+        <div class="form-card" style="margin-bottom:20px">
+          <h2 style="margin-bottom:16px">My Attendance (Today)</h2>
+          <% if (myRecord) { %>
+            <p>
+              <strong>Check-In:</strong> <%= myRecord.check_in || '—' %> &nbsp;
+              <strong>Check-Out:</strong> <%= myRecord.check_out || '—' %>
+            </p>
+          <% } else { %>
+            <p class="muted">Not checked in yet.</p>
+          <% } %>
+          <div class="form-actions" style="margin-top:12px">
+            <form method="POST" action="/teacher-attendance/checkin" style="display:inline">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <button type="submit" class="btn-primary" style="width:auto">Check In</button>
+            </form>
+            <form method="POST" action="/teacher-attendance/checkout" style="display:inline">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <button type="submit" class="btn-secondary">Check Out</button>
+            </form>
+          </div>
+        </div>
+      <% } else { %>
+        <div class="alert-info" style="margin-bottom:20px">
+          Admin has view-only access to teacher attendance. Only teachers can mark their own check-in/check-out.
+        </div>
+      <% } %>
+
+      <h2 style="margin-bottom:12px">All Teachers — <%= date %></h2>
+      <% if (records.length === 0) { %>
+        <div class="empty-state"><p>No attendance recorded for this date.</p></div>
+      <% } else { %>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Teacher</th><th>Check-In</th><th>Check-Out</th><th>Status</th></tr></thead>
+            <tbody>
+              <% records.forEach(r => { %>
+                <tr>
+                  <td><a href="/teachers/<%= r.user_id %>"><%= r.teacher_name %></a></td>
+                  <td><%= r.check_in || '—' %></td>
+                  <td><%= r.check_out || '—' %></td>
+                  <td><span class="badge badge-success"><%= r.status %></span></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      <% } %>
+    </main>
+  </div>
+</body>
+</html>

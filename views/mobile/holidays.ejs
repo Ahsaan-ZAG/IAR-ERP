@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en"><head><%- include('partials/head') %></head>
+<body class="mobile-body">
+  <%- include('partials/topbar') %>
+  <main class="mobile-main">
+    <a href="/mobile/more" class="mobile-back">← More</a>
+    <h1 class="mobile-page-title">Holidays</h1>
+
+    <% if (holidays.length === 0) { %>
+      <div class="mobile-empty">No holidays scheduled.</div>
+    <% } else { %>
+      <div class="mobile-list">
+        <% holidays.forEach(h => { %>
+          <div class="mobile-list-item">
+            <div class="mobile-list-title"><%= h.title %></div>
+            <div class="mobile-list-sub">
+              <%= h.start_date %><% if (h.start_date !== h.end_date) { %> → <%= h.end_date %><% } %>
+            </div>
+            <div class="mobile-list-sub">
+              <%= h.is_full_day ? 'Full day' : 'Partial: ' + h.partial_start + ' – ' + h.partial_end %>
+            </div>
+            <div class="mobile-list-sub"><%= h.affected_batches || 'All batches' %></div>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+  </main>
+  <%- include('partials/bottom-nav') %>
+</body>
+</html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title><link rel="stylesheet" href="/css/app.css">
+</head>
+<body class="app-body">
+  <%- include('../partials/sidebar') %>
+  <div class="main-area"><%- include('../partials/navbar') %>
+    <main class="content">
+      <% if (flash) { %><div class="alert-<%= flash.type %>"><%= flash.message %></div><% } %>
+
+      <h1 class="page-title">Analytics</h1>
+      <p class="page-sub">Matplotlib-generated charts from live database records.</p>
+
+      <% if (!analyticsOnline) { %>
+        <div class="alert-warning">
+          Analytics service is offline. Start it with:
+          <code>cd python_analytics &amp;&amp; uvicorn app:app --host 127.0.0.1 --port 8001</code>
+        </div>
+      <% } %>
+
+      <div class="chart-grid">
+        <section class="panel chart-panel">
+          <h2>Monthly Fee Collection</h2>
+          <img class="chart-img" alt="Monthly fee collection" loading="lazy"
+               src="/analytics/chart/fee-monthly">
+        </section>
+
+        <section class="panel chart-panel">
+          <h2>Monthly Expenses</h2>
+          <img class="chart-img" alt="Monthly expenses" loading="lazy"
+               src="/analytics/chart/expenses-monthly">
+        </section>
+
+        <section class="panel chart-panel">
+          <h2>Income vs Expense</h2>
+          <img class="chart-img" alt="Income versus expense" loading="lazy"
+               src="/analytics/chart/income-vs-expense">
+        </section>
+
+        <section class="panel chart-panel">
+          <h2>Attendance Trend (30 Days)</h2>
+          <img class="chart-img" alt="Attendance trend" loading="lazy"
+               src="/analytics/chart/attendance-trend">
+        </section>
+
+        <section class="panel chart-panel">
+          <h2>Batch-wise Attendance</h2>
+          <img class="chart-img" alt="Batch-wise attendance" loading="lazy"
+               src="/analytics/chart/batch-attendance">
+        </section>
+
+        <section class="panel chart-panel">
+          <h2>Student Performance</h2>
+          <div class="chart-controls">
+            <select id="performanceStudent" class="chart-select">
+              <option value="">— Select student —</option>
+              <% students.forEach(s => { %>
+                <option value="<%= s.id %>"><%= s.name %> (<%= s.roll_no %>)</option>
+              <% }) %>
+            </select>
+          </div>
+          <img class="chart-img" id="performanceChart" alt="Student performance" loading="lazy"
+               data-chart="student-performance"
+               src="/analytics/chart/student-performance">
+        </section>
+
+        <section class="panel chart-panel">
+          <h2>Batch Completion (This Month)</h2>
+          <img class="chart-img" alt="Batch completion" loading="lazy"
+               src="/analytics/chart/batch-completion">
+        </section>
+
+        <section class="panel chart-panel">
+          <h2>Outstanding Fee Analysis</h2>
+          <img class="chart-img" alt="Outstanding fees" loading="lazy"
+               src="/analytics/chart/outstanding">
+        </section>
+
+        <section class="panel chart-panel">
+          <h2>Student Growth Trend</h2>
+          <img class="chart-img" alt="Student growth" loading="lazy"
+               src="/analytics/chart/student-growth">
+        </section>
+
+        <section class="panel chart-panel">
+          <h2>Teacher Attendance</h2>
+          <img class="chart-img" alt="Teacher attendance" loading="lazy"
+               src="/analytics/chart/teacher-attendance">
+        </section>
+
+        <section class="panel chart-panel">
+          <h2>Monthly Admission Trend</h2>
+          <img class="chart-img" alt="Admission trend" loading="lazy"
+               src="/analytics/chart/admission-trend">
+        </section>
+
+        <section class="panel chart-panel">
+          <h2>Financial Trend (Net)</h2>
+          <img class="chart-img" alt="Financial trend" loading="lazy"
+               src="/analytics/chart/financial-trend">
+        </section>
+      </div>
+
+      <script src="/js/analytics.js"></script>
+      <script src="/js/chart-fallback.js"></script>
+    </main>
+  </div>
+</body>
+</html>

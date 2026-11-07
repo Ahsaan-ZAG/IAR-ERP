@@ -1,0 +1,36 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title><%= title %></title><link rel="stylesheet" href="/css/app.css"></head>
+<body class="app-body">
+  <%- include('../partials/sidebar') %>
+  <div class="main-area"><%- include('../partials/navbar') %>
+    <main class="content">
+      <% if (flash) { %><div class="alert-<%= flash.type %>"><%= flash.message %></div><% } %>
+      <div class="page-header-row">
+        <div><h1 class="page-title">Courses & Syllabus</h1><p class="page-sub"><%= courses.length %> course(s)</p></div>
+        <a href="/courses/new" class="btn-primary" style="width:auto">+ New Course</a>
+      </div>
+      <form method="GET" action="/courses" class="filter-bar">
+        <select name="batch"><option value="">All Batches</option>
+          <% batches.forEach(b => { %><option value="<%= b.id %>" <%= filters.batchId===b.id?'selected':'' %>><%= b.name %></option><% }) %></select>
+        <button type="submit" class="btn-secondary">Filter</button>
+        <a href="/courses" class="btn-link">Reset</a>
+      </form>
+      <% if (courses.length === 0) { %><div class="empty-state"><p>No courses yet.</p></div>
+      <% } else { %>
+        <div class="table-wrap"><table class="data-table">
+          <thead><tr><th>Title</th><th>Batch</th><th>Topics</th><th>Progress</th><th></th></tr></thead>
+          <tbody>
+            <% courses.forEach(c => { %>
+              <tr>
+                <td><a href="/courses/<%= c.id %>"><%= c.title %></a></td>
+                <td><%= c.batch_name || '—' %></td>
+                <td><%= c.completed_topics %> / <%= c.total_topics %></td>
+                <td><%= c.total_topics ? Math.round((c.completed_topics / c.total_topics) * 100) : 0 %>%</td>
+                <td><a href="/courses/<%= c.id %>" class="btn-link">Open</a></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table></div>
+      <% } %>
+    </main>
+  </div>
+</body></html>

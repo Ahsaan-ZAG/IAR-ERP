@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><title><%= title %></title>
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body class="app-body">
+  <%- include('../partials/sidebar') %>
+  <div class="main-area">
+    <%- include('../partials/navbar') %>
+    <main class="content">
+      <% if (flash) { %><div class="alert-<%= flash.type %>"><%= flash.message %></div><% } %>
+      <h1 class="page-title">Batches</h1>
+      <p class="page-sub">Five fixed academy batches.</p>
+
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>#</th><th>Batch</th><th>Time</th><th>Active Students</th><th>Today's Sessions</th><th></th></tr></thead>
+          <tbody>
+            <% batches.forEach(b => { %>
+              <tr>
+                <td><%= b.id %></td>
+                <td><a href="/batches/<%= b.id %>"><%= b.name %></a></td>
+                <td><%= b.start_time %> – <%= b.end_time %></td>
+                <td><%= b.active_students %></td>
+                <td><%= b.today_sessions %></td>
+                <td><a href="/batches/<%= b.id %>" class="btn-link">View</a></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

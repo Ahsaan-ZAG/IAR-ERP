@@ -1,0 +1,13 @@
+<header class="mobile-topbar">
+  <div class="mobile-brand">
+    <div class="mobile-brand-name">Imam Ahmed Raza Academy</div>
+    <div class="mobile-brand-sub">Under the Supervision of Barkati Foundation Trust</div>
+  </div>
+  <div class="mobile-topbar-actions">
+    <span class="ro-badge-mobile">READ ONLY</span>
+    <form method="POST" action="/auth/logout" class="mobile-logout-form">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <button type="submit" class="mobile-logout-btn">Logout</button>
+    </form>
+  </div>
+</header>

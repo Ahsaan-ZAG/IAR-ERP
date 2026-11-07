@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en"><head><%- include('partials/head') %></head>
+<body class="mobile-body">
+  <%- include('partials/topbar') %>
+  <main class="mobile-main">
+    <a href="/mobile/more" class="mobile-back">← More</a>
+    <h1 class="mobile-page-title">Analytics</h1>
+
+    <div class="mobile-chart-grid">
+      <% charts.forEach(c => { %>
+        <div class="mobile-chart-card">
+          <h3><%= c.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) %></h3>
+          <img src="/analytics/chart/<%= c %>" alt="<%= c %>" loading="lazy" class="mobile-chart-img">
+        </div>
+      <% }) %>
+    </div>
+  </main>
+  <%- include('partials/bottom-nav') %>
+</body>
+</html>

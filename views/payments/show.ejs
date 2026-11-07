@@ -1,0 +1,52 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title><%= title %></title><link rel="stylesheet" href="/css/app.css"></head>
+<body class="app-body">
+  <%- include('../partials/sidebar') %>
+  <div class="main-area"><%- include('../partials/navbar') %>
+    <main class="content">
+      <% if (flash) { %><div class="alert-<%= flash.type %>"><%= flash.message %></div><% } %>
+      <div class="page-header-row">
+        <div>
+          <h1 class="page-title">Receipt <%= payment.receipt_no %></h1>
+          <p class="page-sub">Date: <%= payment.payment_date %></p>
+        </div>
+        <div style="display:flex;gap:8px">
+          <a href="/payments/<%= payment.id %>/receipt.pdf" target="_blank" class="btn-primary" style="width:auto">Download Receipt PDF</a>
+          <a href="/payments" class="btn-link" style="align-self:center">← Back</a>
+        </div>
+      </div>
+
+      <div class="form-card" style="max-width:640px">
+        <div class="detail-grid">
+          <div class="detail-item"><div class="detail-label">Receipt No</div><div class="detail-value"><code><%= payment.receipt_no %></code></div></div>
+          <div class="detail-item"><div class="detail-label">Payment Date</div><div class="detail-value"><%= payment.payment_date %></div></div>
+          <div class="detail-item"><div class="detail-label">Amount</div><div class="detail-value">PKR <%= payment.amount.toLocaleString() %></div></div>
+          <div class="detail-item"><div class="detail-label">Method</div><div class="detail-value"><%= payment.method %></div></div>
+          <div class="detail-item"><div class="detail-label">Student</div><div class="detail-value"><a href="/fees/student/<%= payment.student_id %>"><%= payment.name %></a> (<%= payment.roll_no %>)</div></div>
+          <div class="detail-item"><div class="detail-label">Father</div><div class="detail-value"><%= payment.father_name %></div></div>
+          <div class="detail-item"><div class="detail-label">Received By</div><div class="detail-value"><%= payment.received_by_name || '—' %></div></div>
+          <div class="detail-item"><div class="detail-label">Status</div><div class="detail-value"><span class="badge <%= payment.is_reversed ? 'badge-danger' : 'badge-success' %>"><%= payment.is_reversed ? 'reversed' : 'active' %></span></div></div>
+          <% if (payment.notes) { %>
+            <div class="detail-item" style="grid-column: 1 / -1"><div class="detail-label">Notes</div><div class="detail-value"><%= payment.notes %></div></div>
+          <% } %>
+        </div>
+
+        <% if (payment.is_reversed) { %>
+          <div class="alert-warning" style="margin-top:20px">
+            <strong>Reversed</strong> on <%= payment.reversed_at %><br>
+            Reason: <%= payment.reversal_reason %><br>
+            By: <%= payment.reversed_by_name || '—' %>
+          </div>
+        <% } else if (isAdmin) { %>
+          <details class="details-card" style="margin-top:20px">
+            <summary style="color:#DC4545">⚠ Reverse This Payment</summary>
+            <form method="POST" action="/payments/<%= payment.id %>/reverse">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <div class="form-group"><label>Reason *</label><input type="text" name="reason" required minlength="3" maxlength="300" placeholder="e.g. Wrong amount recorded"></div>
+              <button type="submit" class="btn-primary" style="width:auto;background:#DC4545">Reverse Payment</button>
+            </form>
+          </details>
+        <% } %>
+      </div>
+    </main>
+  </div>
+</body></html>

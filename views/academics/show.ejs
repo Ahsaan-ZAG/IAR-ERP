@@ -1,0 +1,36 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title><%= title %></title><link rel="stylesheet" href="/css/app.css"></head>
+<body class="app-body">
+  <%- include('../partials/sidebar') %>
+  <div class="main-area"><%- include('../partials/navbar') %>
+    <main class="content">
+      <% if (flash) { %><div class="alert-<%= flash.type %>"><%= flash.message %></div><% } %>
+      <h1 class="page-title"><%= assessment.title %></h1>
+      <p class="page-sub"><%= assessment.batch_name %> · <%= assessment.type %> · <%= assessment.exam_date %> · Max: <%= assessment.max_marks %> · Created by <%= assessment.created_by_name || '—' %></p>
+
+      <% if (rows.length === 0) { %><div class="empty-state"><p>No students in this batch.</p></div>
+      <% } else { %>
+        <form method="POST" action="/exams/<%= assessment.id %>/results">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <div class="table-wrap"><table class="data-table">
+            <thead><tr><th>Roll No</th><th>Name</th><th>Obtained</th><th>Grade</th><th>Remarks</th></tr></thead>
+            <tbody>
+              <% rows.forEach(s => { %>
+                <tr>
+                  <td><code><%= s.roll_no %></code></td>
+                  <td><%= s.name %></td>
+                  <td><input type="number" name="marks_<%= s.id %>" min="0" max="<%= assessment.max_marks %>" step="1" value="<%= s.obtained_marks !== null ? s.obtained_marks : '' %>" style="width:100px;padding:6px;border:1px solid #E0E2E8;border-radius:6px"></td>
+                  <td><span class="badge badge-muted"><%= s.grade || '—' %></span></td>
+                  <td><input type="text" name="remarks_<%= s.id %>" maxlength="100" value="<%= s.remarks || '' %>" style="width:180px;padding:6px;border:1px solid #E0E2E8;border-radius:6px" placeholder="optional"></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table></div>
+          <div class="form-actions" style="margin-top:16px">
+            <button type="submit" class="btn-primary" style="width:auto">Save Results</button>
+            <a href="/exams" class="btn-link">Back</a>
+          </div>
+        </form>
+      <% } %>
+    </main>
+  </div>
+</body></html>

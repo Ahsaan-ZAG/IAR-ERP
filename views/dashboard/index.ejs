@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= title %>
+    </title>
+    <link rel="stylesheet" href="/css/app.css">
+</head>
+
+<body class="app-body">
+    <%- include('../partials/sidebar') %>
+        <div class="main-area">
+            <%- include('../partials/navbar') %>
+                <main class="content">
+                    <h1 class="page-title">Dashboard</h1>
+                    <p class="page-sub">Imam Ahmed Raza Academy — Under the Supervision of Barkati Foundation Trust —
+                        Today: <%= today %>
+                    </p>
+
+                    <section class="stat-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Active Students</div>
+                            <div class="stat-value">
+                                <%= stats.activeStudents %>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Inactive Students</div>
+                            <div class="stat-value">
+                                <%= stats.inactiveStudents %>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Present Today</div>
+                            <div class="stat-value success">
+                                <%= stats.presentToday %>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Absent Today</div>
+                            <div class="stat-value danger">
+                                <%= stats.absentToday %>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Late Today</div>
+                            <div class="stat-value warning">
+                                <%= stats.lateToday %>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Fee Collected Today</div>
+                            <div class="stat-value">PKR <%= stats.feeToday.toLocaleString() %>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Fee This Month</div>
+                            <div class="stat-value">PKR <%= stats.feeMonth.toLocaleString() %>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Outstanding</div>
+                            <div class="stat-value danger">PKR <%= stats.outstanding.toLocaleString() %>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Expenses This Month</div>
+                            <div class="stat-value warning">PKR <%= stats.expenseMonth.toLocaleString() %>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Holidays Today</div>
+                            <div class="stat-value warning">
+                                <%= stats.holidayBatchesToday %>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="chart-grid" style="margin-bottom:28px">
+                        <div class="panel chart-panel">
+                            <h2>Monthly Fee Collection</h2>
+                            <img class="chart-img" alt="Monthly fee collection" loading="lazy"
+                                src="/analytics/chart/fee-monthly">
+                        </div>
+                        <div class="panel chart-panel">
+                            <h2>Attendance — Last 30 Days</h2>
+                            <img class="chart-img" alt="Attendance trend" loading="lazy"
+                                src="/analytics/chart/attendance-trend">
+                        </div>
+                    </section>
+
+                    <div class="two-col">
+                        <section class="panel">
+                            <h2>Recent Activity</h2>
+                            <% if (recentActivity.length===0) { %>
+                                <p class="empty">No activity yet.</p>
+                                <% } else { %>
+                                    <ul class="activity-list">
+                                        <% recentActivity.forEach(a=> { %>
+                                            <li>
+                                                <span class="activity-user">
+                                                    <%= a.user_name || 'System' %>
+                                                </span>
+                                                <span class="activity-action">
+                                                    <%= a.action %> — <%= a.module %>
+                                                </span>
+                                                <span class="activity-time">
+                                                    <%= a.created_at %>
+                                                </span>
+                                            </li>
+                                            <% }) %>
+                                    </ul>
+                                    <% } %>
+                        </section>
+
+                        <section class="panel">
+                            <h2>Notifications</h2>
+                            <% if (notifications.length===0) { %>
+                                <p class="empty">No notifications.</p>
+                                <% } else { %>
+                                    <ul class="notif-list">
+                                        <% notifications.forEach(n=> { %>
+                                            <li class="<%= n.is_read ? 'read' : 'unread' %>">
+                                                <strong>
+                                                    <%= n.type %>
+                                                </strong>
+                                                <p>
+                                                    <%= n.message %>
+                                                </p>
+                                                <span class="notif-time">
+                                                    <%= n.created_at %>
+                                                </span>
+                                            </li>
+                                            <% }) %>
+                                    </ul>
+                                    <% } %>
+                        </section>
+                    </div>
+                    <script src="/js/chart-fallback.js"></script>
+                </main>
+        </div>
+</body>
+
+</html>

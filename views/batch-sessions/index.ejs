@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><title><%= title %></title>
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body class="app-body">
+  <%- include('../partials/sidebar') %>
+  <div class="main-area">
+    <%- include('../partials/navbar') %>
+    <main class="content">
+      <% if (flash) { %><div class="alert-<%= flash.type %>"><%= flash.message %></div><% } %>
+      <div class="page-header-row">
+        <div>
+          <h1 class="page-title">Batch Sessions</h1>
+          <p class="page-sub">Date: <%= filters.date %></p>
+        </div>
+        <form method="POST" action="/batch-sessions/generate">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <input type="hidden" name="date" value="<%= filters.date %>">
+          <button type="submit" class="btn-primary" style="width:auto">Generate Sessions</button>
+        </form>
+      </div>
+
+      <form method="GET" action="/batch-sessions" class="filter-bar">
+        <select name="batch">
+          <option value="">All Batches</option>
+          <% batches.forEach(b => { %>
+            <option value="<%= b.id %>" <%= filters.batchId === b.id ? 'selected' : '' %>><%= b.name %></option>
+          <% }) %>
+        </select>
+        <input type="date" name="date" value="<%= filters.date %>">
+        <select name="status">
+          <option value="">All Status</option>
+          <% ['scheduled','in_progress','completed','missed','holiday'].forEach(s => { %>
+            <option value="<%= s %>" <%= filters.status === s ? 'selected' : '' %>><%= s %></option>
+          <% }) %>
+        </select>
+        <button type="submit" class="btn-secondary">Filter</button>
+      </form>
+
+      <% if (sessions.length === 0) { %>
+        <div class="empty-state">
+          <p>No sessions found. Click <strong>Generate Sessions</strong> to create today's sessions.</p>
+        </div>
+      <% } else { %>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Date</th><th>Batch</th><th>Scheduled</th><th>Status</th><th>Teacher(s)</th><th>Completed</th><th></th></tr></thead>
+            <tbody>
+              <% sessions.forEach(s => { %>
+                <tr>
+                  <td><%= s.session_date %></td>
+                  <td><%= s.batch_name %></td>
+                  <td><%= s.scheduled_start %> – <%= s.scheduled_end %></td>
+                  <td><span class="badge <%= s.status === 'completed' ? 'badge-success' : 'badge-muted' %>"><%= s.status %></span></td>
+                  <td><%= s.teachers || '—' %></td>
+                  <td><%= s.completed_at ? s.completed_at.slice(11, 19) : '—' %></td>
+                  <td><a href="/batch-sessions/<%= s.id %>" class="btn-link">Open</a></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      <% } %>
+    </main>
+  </div>
+</body>
+</html>

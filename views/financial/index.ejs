@@ -1,0 +1,113 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title><%= title %></title><link rel="stylesheet" href="/css/app.css"></head>
+<body class="app-body">
+  <%- include('../partials/sidebar') %>
+  <div class="main-area"><%- include('../partials/navbar') %>
+    <main class="content">
+      <% if (flash) { %><div class="alert-<%= flash.type %>"><%= flash.message %></div><% } %>
+      <div class="page-header-row">
+        <div><h1 class="page-title">Financial</h1><p class="page-sub">Daily summary, closings, and monthly view.</p></div>
+      </div>
+
+      <form method="GET" action="/financial" class="filter-bar">
+        <label style="font-size:13px;align-self:center">Day:</label>
+        <input type="date" name="date" value="<%= date %>">
+        <button type="submit" class="btn-secondary">Load</button>
+        <a href="/financial" class="btn-link">Today</a>
+      </form>
+
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-label">Collection (<%= date %>)</div><div class="stat-value success">PKR <%= data.totalCollection.toLocaleString() %></div></div>
+        <div class="stat-card"><div class="stat-label">Expenses (<%= date %>)</div><div class="stat-value warning">PKR <%= data.totalExpense.toLocaleString() %></div></div>
+        <div class="stat-card"><div class="stat-label">Net</div><div class="stat-value <%= data.net >= 0 ? 'success' : 'danger' %>">PKR <%= data.net.toLocaleString() %></div></div>
+      </div>
+
+      <div class="two-col">
+        <section class="panel">
+          <h2>Payments Received</h2>
+          <% if (data.payments.length === 0) { %><p class="muted">No payments.</p>
+          <% } else { %>
+            <table class="data-table"><thead><tr><th>Receipt</th><th>Student</th><th>Amount</th><th>Status</th></tr></thead>
+              <tbody>
+                <% data.payments.forEach(p => { %>
+                  <tr>
+                    <td><a href="/payments/<%= p.id %>"><code><%= p.receipt_no %></code></a></td>
+                    <td><%= p.name %></td>
+                    <td>PKR <%= p.amount.toLocaleString() %></td>
+                    <td><span class="badge <%= p.is_reversed ? 'badge-danger' : 'badge-success' %>"><%= p.is_reversed ? 'reversed' : 'active' %></span></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          <% } %>
+        </section>
+
+        <section class="panel">
+          <h2>Expenses</h2>
+          <details class="details-card" style="margin-bottom:12px">
+            <summary>+ Add Expense</summary>
+            <form method="POST" action="/financial/expense">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <input type="hidden" name="expense_date" value="<%= date %>">
+              <div class="form-group"><label>Category *</label>
+                <select name="category" required>
+                  <% categories.forEach(c => { %><option value="<%= c %>"><%= c %></option><% }) %>
+                </select>
+              </div>
+              <div class="form-group"><label>Amount (PKR) *</label><input type="number" name="amount" required min="1" step="1"></div>
+              <div class="form-group"><label>Description</label><input type="text" name="description" maxlength="200"></div>
+              <button type="submit" class="btn-primary" style="width:auto">Add Expense</button>
+            </form>
+          </details>
+          <% if (data.expenses.length === 0) { %><p class="muted">No expenses.</p>
+          <% } else { %>
+            <table class="data-table"><thead><tr><th>Category</th><th>Description</th><th>Amount</th><th>By</th></tr></thead>
+              <tbody>
+                <% data.expenses.forEach(e => { %>
+                  <tr><td><%= e.category %></td><td><%= e.description || '—' %></td>
+                    <td>PKR <%= e.amount.toLocaleString() %></td>
+                    <td><%= e.created_by_name || '—' %></td></tr>
+                <% }) %>
+              </tbody>
+            </table>
+          <% } %>
+        </section>
+      </div>
+
+      <% if (isAdmin) { %>
+        <div class="form-card" style="margin-top:20px;max-width:100%">
+          <% if (closing) { %>
+            <p><strong>Day closed</strong> by <%= closing.closed_by_name %> on <%= closing.created_at %> — Collection PKR <%= closing.total_collection.toLocaleString() %>, Expense PKR <%= closing.total_expense.toLocaleString() %>, Net PKR <%= closing.net_amount.toLocaleString() %></p>
+            <form method="POST" action="/financial/closing" style="margin-top:12px">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <input type="hidden" name="date" value="<%= date %>">
+              <button type="submit" class="btn-secondary">Re-close Day (refresh snapshot)</button>
+            </form>
+          <% } else { %>
+            <p>Close the day to record a financial snapshot.</p>
+            <form method="POST" action="/financial/closing" style="margin-top:12px">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <input type="hidden" name="date" value="<%= date %>">
+              <button type="submit" class="btn-primary" style="width:auto">Close Day</button>
+            </form>
+          <% } %>
+        </div>
+      <% } %>
+
+      <h2 style="margin:28px 0 12px">Monthly Summary — <%= month %> / <%= year %></h2>
+      <form method="GET" action="/financial" class="filter-bar">
+        <input type="hidden" name="date" value="<%= date %>">
+        <input type="number" name="year" value="<%= year %>" min="2000" max="2100" style="width:100px">
+        <input type="number" name="month" value="<%= month %>" min="1" max="12" style="width:80px">
+        <button type="submit" class="btn-secondary">Update</button>
+      </form>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-label">Charges</div><div class="stat-value">PKR <%= summary.charges.toLocaleString() %></div></div>
+        <div class="stat-card"><div class="stat-label">Discounts</div><div class="stat-value warning">PKR <%= summary.discounts.toLocaleString() %></div></div>
+        <div class="stat-card"><div class="stat-label">Payments Received</div><div class="stat-value success">PKR <%= summary.payments.toLocaleString() %></div></div>
+        <div class="stat-card"><div class="stat-label">Expenses</div><div class="stat-value danger">PKR <%= summary.expenses.toLocaleString() %></div></div>
+        <div class="stat-card"><div class="stat-label">Net (Payments − Expenses)</div><div class="stat-value">PKR <%= summary.net.toLocaleString() %></div></div>
+        <div class="stat-card"><div class="stat-label">Total Outstanding (all-time)</div><div class="stat-value danger">PKR <%= summary.outstanding.toLocaleString() %></div></div>
+      </div>
+    </main>
+  </div>
+</body></html>

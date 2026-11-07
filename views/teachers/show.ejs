@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><title><%= title %></title>
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body class="app-body">
+  <%- include('../partials/sidebar') %>
+  <div class="main-area">
+    <%- include('../partials/navbar') %>
+    <main class="content">
+      <% if (flash) { %><div class="alert-<%= flash.type %>"><%= flash.message %></div><% } %>
+      <h1 class="page-title"><%= teacher.display_name %></h1>
+      <p class="page-sub"><code><%= teacher.username %></code> · <%= teacher.role %> · <%= teacher.is_active ? 'Active' : 'Inactive' %></p>
+
+      <div class="two-col">
+        <section class="panel">
+          <h2>Recent Attendance</h2>
+          <% if (attendance.length === 0) { %><p class="muted">No attendance records.</p>
+          <% } else { %>
+            <table class="data-table">
+              <thead><tr><th>Date</th><th>Check-In</th><th>Check-Out</th><th>Status</th></tr></thead>
+              <tbody>
+                <% attendance.forEach(a => { %>
+                  <tr><td><%= a.date %></td><td><%= a.check_in || '—' %></td><td><%= a.check_out || '—' %></td>
+                    <td><span class="badge badge-success"><%= a.status %></span></td></tr>
+                <% }) %>
+              </tbody>
+            </table>
+          <% } %>
+        </section>
+
+        <section class="panel">
+          <h2>Recent Sessions</h2>
+          <% if (sessions.length === 0) { %><p class="muted">No sessions recorded.</p>
+          <% } else { %>
+            <table class="data-table">
+              <thead><tr><th>Date</th><th>Batch</th><th>Status</th></tr></thead>
+              <tbody>
+                <% sessions.forEach(s => { %>
+                  <tr><td><a href="/batch-sessions/<%= s.id %>"><%= s.session_date %></a></td>
+                    <td><%= s.batch_name %></td>
+                    <td><%= s.status %></td></tr>
+                <% }) %>
+              </tbody>
+            </table>
+          <% } %>
+        </section>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

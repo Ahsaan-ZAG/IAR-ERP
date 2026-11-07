@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en"><head><%- include('partials/head') %></head>
+<body class="mobile-body">
+  <%- include('partials/topbar') %>
+  <main class="mobile-main">
+    <h1 class="mobile-page-title">Fees</h1>
+    <p class="mobile-page-sub"><%= pagination.total %> student(s)</p>
+
+    <form method="GET" action="/mobile/fees" class="mobile-search">
+      <input type="text" name="search" placeholder="Search student"
+             value="<%= filters.search %>">
+      <button type="submit">Go</button>
+    </form>
+
+    <div class="mobile-list">
+      <% students.forEach(s => { %>
+        <a href="/mobile/fees/student/<%= s.id %>" class="mobile-list-item mobile-list-link">
+          <div class="mobile-list-title"><%= s.name %></div>
+          <div class="mobile-list-sub"><span class="mobile-code"><%= s.roll_no %></span> · <%= s.batch_name || '—' %></div>
+          <div class="mobile-list-sub <%= s.balance > 0 ? 'danger' : (s.balance < 0 ? 'success' : '') %>">PKR <%= s.balance.toLocaleString() %></div>
+        </a>
+      <% }) %>
+    </div>
+  </main>
+  <%- include('partials/bottom-nav') %>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title><%= title %></title><link rel="stylesheet" href="/css/app.css"></head>
+<body class="app-body">
+  <%- include('../partials/sidebar') %>
+  <div class="main-area"><%- include('../partials/navbar') %>
+    <main class="content">
+      <% if (flash) { %><div class="alert-<%= flash.type %>"><%= flash.message %></div><% } %>
+      <h1 class="page-title">Audit Logs</h1>
+      <p class="page-sub">Total: <%= pagination.total %> entries</p>
+
+      <form method="GET" action="/audit-logs" class="filter-bar">
+        <select name="user"><option value="">All Users</option>
+          <% users.forEach(u => { %><option value="<%= u.id %>" <%= filters.user==u.id?'selected':'' %>><%= u.display_name %></option><% }) %></select>
+        <select name="module"><option value="">All Modules</option>
+          <% modules.forEach(m => { %><option value="<%= m %>" <%= filters.module===m?'selected':'' %>><%= m %></option><% }) %></select>
+        <input type="date" name="from" value="<%= filters.from %>">
+        <input type="date" name="to" value="<%= filters.to %>">
+        <button type="submit" class="btn-secondary">Filter</button>
+        <a href="/audit-logs" class="btn-link">Reset</a>
+      </form>
+
+      <% if (logs.length === 0) { %><div class="empty-state"><p>No logs found.</p></div>
+      <% } else { %>
+        <div class="table-wrap"><table class="data-table">
+          <thead><tr><th>Time</th><th>User</th><th>Action</th><th>Module</th><th>Record</th><th>IP</th></tr></thead>
+          <tbody>
+            <% logs.forEach(l => { %>
+              <tr>
+                <td><%= l.created_at.slice(0, 19).replace('T', ' ') %></td>
+                <td><%= l.user_name || 'System' %></td>
+                <td><strong><%= l.action %></strong></td>
+                <td><span class="badge badge-muted"><%= l.module %></span></td>
+                <td><%= l.record_id || '—' %></td>
+                <td><%= l.ip_address || '—' %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table></div>
+        <% if (pagination.totalPages > 1) { %>
+          <div class="pagination">
+            <% for (let i = 1; i <= pagination.totalPages; i++) { %>
+              <a href="/audit-logs?page=<%= i %>&user=<%= filters.user %>&module=<%= filters.module %>&from=<%= filters.from %>&to=<%= filters.to %>" class="page-link <%= i === pagination.page ? 'active' : '' %>"><%= i %></a>
+            <% } %>
+          </div>
+        <% } %>
+      <% } %>
+    </main>
+  </div>
+</body></html>

@@ -1,0 +1,17 @@
+<nav class="mobile-bottom-nav">
+  <a href="/mobile/dashboard" class="nav-cell <%= currentPath === '/mobile/dashboard' ? 'active' : '' %>">
+    <span class="nav-cell-label">Home</span>
+  </a>
+  <a href="/mobile/students" class="nav-cell <%= currentPath === '/mobile/students' || (currentPath && currentPath.startsWith('/mobile/students/')) ? 'active' : '' %>">
+    <span class="nav-cell-label">Students</span>
+  </a>
+  <a href="/mobile/monthly-fees" class="nav-cell <%= currentPath && currentPath.startsWith('/mobile/monthly-fees') ? 'active' : '' %>">
+    <span class="nav-cell-label">Fees</span>
+  </a>
+  <a href="/mobile/attendance" class="nav-cell <%= currentPath && currentPath.startsWith('/mobile/attendance') ? 'active' : '' %>">
+    <span class="nav-cell-label">Attendance</span>
+  </a>
+  <a href="/mobile/more" class="nav-cell <%= currentPath === '/mobile/more' ? 'active' : '' %>">
+    <span class="nav-cell-label">More</span>
+  </a>
+</nav>

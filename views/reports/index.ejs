@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title><link rel="stylesheet" href="/css/app.css">
+</head>
+<body class="app-body">
+  <%- include('../partials/sidebar') %>
+  <div class="main-area"><%- include('../partials/navbar') %>
+    <main class="content">
+      <% if (flash) { %><div class="alert-<%= flash.type %>"><%= flash.message %></div><% } %>
+      <h1 class="page-title">Reports</h1>
+      <p class="page-sub">Download professional PDF or CSV reports.</p>
+
+      <div class="form-card" style="max-width:100%;margin-bottom:20px">
+        <div class="form-group">
+          <label>Date Range (for date-filtered reports)</label>
+          <div style="display:flex;gap:12px">
+            <input type="date" id="fromInput" value="<%= monthStart %>" style="flex:1;padding:10px;border:1px solid #E0E2E8;border-radius:8px">
+            <input type="date" id="toInput" value="<%= today %>" style="flex:1;padding:10px;border:1px solid #E0E2E8;border-radius:8px">
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap"><table class="data-table">
+        <thead><tr><th>Report</th><th>PDF</th><th>CSV</th></tr></thead>
+        <tbody>
+          <% reports.forEach(r => { %>
+            <tr>
+              <td><strong><%= r.title %></strong></td>
+              <td>
+                <a href="/reports/pdf/<%= r.key %>" target="_blank"
+                   data-report-link data-report-key="<%= r.key %>" data-report-fmt="pdf"
+                   class="btn-link">📄 Download PDF</a>
+              </td>
+              <td>
+                <a href="/reports/csv/<%= r.key %>" target="_blank"
+                   data-report-link data-report-key="<%= r.key %>" data-report-fmt="csv"
+                   class="btn-link">📊 Download CSV</a>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table></div>
+
+      <script src="/js/reports.js"></script>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title><%= title %></title><link rel="stylesheet" href="/css/app.css"></head>
+<body class="app-body">
+  <%- include('../partials/sidebar') %>
+  <div class="main-area"><%- include('../partials/navbar') %>
+    <main class="content">
+      <% if (flash) { %><div class="alert-<%= flash.type %>"><%= flash.message %></div><% } %>
+      
+      <div class="page-header-row">
+        <div><h1 class="page-title">Fee Management</h1><p class="page-sub">Total: <%= pagination.total %> student(s)</p></div>
+        <a href="/fees/bulk" class="btn-primary" style="width:auto">+ Bulk Fee Charge</a>
+      </div>
+
+      <form method="GET" action="/fees" class="filter-bar">
+        <input type="text" name="search" placeholder="Search name, father, roll no" value="<%= filters.search %>" style="flex:1">
+        <select name="batch"><option value="">All Batches</option>
+          <% batches.forEach(b => { %><option value="<%= b.id %>" <%= filters.batchId===b.id?'selected':'' %>><%= b.name %></option><% }) %></select>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px">
+          <input type="checkbox" name="defaulters" value="1" <%= filters.onlyDefaulters ? 'checked' : '' %>> Only defaulters
+        </label>
+        <button type="submit" class="btn-secondary">Filter</button>
+        <a href="/fees" class="btn-link">Reset</a>
+      </form>
+
+      <% if (students.length === 0) { %><div class="empty-state"><p>No students found.</p></div>
+      <% } else { %>
+        <div class="table-wrap"><table class="data-table">
+          <thead><tr><th>Roll No</th><th>Name</th><th>Father</th><th>Batch</th><th>Balance (PKR)</th><th></th></tr></thead>
+          <tbody>
+            <% students.forEach(s => { %>
+              <tr>
+                <td><code><%= s.roll_no %></code></td>
+                <td><a href="/fees/student/<%= s.id %>"><%= s.name %></a></td>
+                <td><%= s.father_name %></td>
+                <td><%= s.batch_name || '—' %></td>
+                <td><span class="ledger-amount <%= s.balance > 0 ? 'positive' : (s.balance < 0 ? 'negative' : '') %>">PKR <%= s.balance.toLocaleString() %></span></td>
+                <td><a href="/fees/student/<%= s.id %>" class="btn-link">Open</a></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table></div>
+        <% if (pagination.totalPages > 1) { %>
+          <div class="pagination">
+            <% for (let i = 1; i <= pagination.totalPages; i++) { %>
+              <a href="/fees?page=<%= i %>&search=<%= encodeURIComponent(filters.search) %>&batch=<%= filters.batchId || '' %>&defaulters=<%= filters.onlyDefaulters ? '1' : '' %>" class="page-link <%= i === pagination.page ? 'active' : '' %>"><%= i %></a>
+            <% } %>
+          </div>
+        <% } %>
+      <% } %>
+    </main>
+  </div>
+</body></html>

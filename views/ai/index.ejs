@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title><link rel="stylesheet" href="/css/app.css">
+</head>
+<body class="app-body">
+  <%- include('../partials/sidebar') %>
+  <div class="main-area"><%- include('../partials/navbar') %>
+    <main class="content">
+      <h1 class="page-title">AI Academy Assistant</h1>
+      <p class="page-sub">
+        Ask about students, fees, attendance, or performance.
+        Answers come from real database queries — never invented.
+      </p>
+
+      <div class="ai-container">
+        <div id="aiMessages" class="ai-messages">
+          <div class="ai-msg ai-bot">
+            <div class="ai-bubble">
+              <strong>Assalam-o-Alaikum.</strong> Ask me anything about the academy.
+              Type <code>help</code> to see what I can do.
+            </div>
+          </div>
+        </div>
+
+        <div id="aiSuggestions" class="ai-suggestions">
+          <button type="button" class="ai-chip" data-q="How many active students?">Active students</button>
+          <button type="button" class="ai-chip" data-q="This month's fee collection">This month's fees</button>
+          <button type="button" class="ai-chip" data-q="Which students have outstanding balances?">Outstanding balances</button>
+          <button type="button" class="ai-chip" data-q="Which batches have low attendance?">Low attendance</button>
+          <button type="button" class="ai-chip" data-q="Summarize this month">Monthly summary</button>
+        </div>
+
+        <form id="aiForm" class="ai-form" autocomplete="off">
+          <input
+            type="text"
+            id="aiInput"
+            name="q"
+            maxlength="500"
+            placeholder="Ask a question…"
+            autofocus
+          >
+          <button type="submit" id="aiSend" class="btn-primary" style="width:auto">Ask</button>
+        </form>
+      </div>
+
+      <script src="/js/ai.js"></script>
+    </main>
+  </div>
+</body>
+</html>

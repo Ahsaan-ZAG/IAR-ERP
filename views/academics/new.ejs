@@ -1,0 +1,32 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title><%= title %></title><link rel="stylesheet" href="/css/app.css"></head>
+<body class="app-body">
+  <%- include('../partials/sidebar') %>
+  <div class="main-area"><%- include('../partials/navbar') %>
+    <main class="content">
+      <h1 class="page-title">New Exam</h1>
+      <p class="page-sub">Create a test, quiz, midterm, or final for a batch.</p>
+      <div class="form-card">
+        <% if (formErrors._general) { %><div class="alert-error"><%= formErrors._general %></div><% } %>
+        <form method="POST" action="/exams/new">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <div class="form-group"><label>Title *</label><input type="text" name="title" required maxlength="120" value="<%= formData.title || '' %>" placeholder="e.g. Monthly Test — November"></div>
+          <div class="form-group"><label>Batch *</label>
+            <select name="batch_id" required><option value="">Select batch</option>
+              <% batches.forEach(b => { %><option value="<%= b.id %>" <%= formData.batch_id==b.id?'selected':'' %>><%= b.name %></option><% }) %></select>
+          </div>
+          <div class="form-group"><label>Type *</label>
+            <select name="type" required>
+              <% ['test','quiz','midterm','final'].forEach(t => { %><option value="<%= t %>" <%= formData.type===t?'selected':'' %>><%= t %></option><% }) %>
+            </select>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="form-group"><label>Exam Date *</label><input type="date" name="exam_date" required value="<%= formData.exam_date || today %>"></div>
+            <div class="form-group"><label>Max Marks *</label><input type="number" name="max_marks" required min="1" step="1" value="<%= formData.max_marks || 100 %>"></div>
+          </div>
+          <div class="form-group"><label>Description</label><input type="text" name="description" maxlength="300" value="<%= formData.description || '' %>"></div>
+          <div class="form-actions"><button type="submit" class="btn-primary" style="width:auto">Create Exam</button><a href="/exams" class="btn-link">Cancel</a></div>
+        </form>
+      </div>
+    </main>
+  </div>
+</body></html>

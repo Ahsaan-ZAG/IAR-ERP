@@ -1,0 +1,137 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title><%= title %></title><link rel="stylesheet" href="/css/app.css"></head>
+<body class="app-body">
+  <%- include('../partials/sidebar') %>
+  <div class="main-area"><%- include('../partials/navbar') %>
+    <main class="content">
+      <% if (flash) { %><div class="alert-<%= flash.type %>"><%= flash.message %></div><% } %>
+      <div class="page-header-row">
+        <div>
+          <h1 class="page-title"><%= student.name %></h1>
+          <p class="page-sub"><code><%= student.roll_no %></code> · <%= student.batch_name || 'No batch' %> · Father: <%= student.father_name %></p>
+        </div>
+        <a href="/fees" class="btn-link" style="align-self:center">← Back to Fees</a>
+      </div>
+
+      <div class="balance-card <%= balance > 0 ? 'owed' : (balance < 0 ? 'credit' : 'clear') %>">
+        <div class="balance-label">Total Current Balance</div>
+        <div class="balance-amount">PKR <%= balance.toLocaleString() %></div>
+        <div class="balance-hint">
+          <% if (balance > 0) { %>Outstanding (student owes)
+          <% } else if (balance < 0) { %>Credit (overpaid)
+          <% } else { %>Settled — no balance<% } %>
+        </div>
+      </div>
+
+      <!-- Monthly Breakdown Table -->
+      <h2 style="margin:24px 0 12px">Monthly Fee Status (<%= currentYear %>)</h2>
+      <div class="table-wrap"><table class="data-table">
+        <thead><tr><th>Month</th><th>Total Charged</th><th>Total Paid</th><th>Balance</th></tr></thead>
+        <tbody>
+          <% Object.keys(monthlySummary).forEach(monthKey => { 
+              const data = monthlySummary[monthKey];
+              const monthName = new Date(monthKey + '-01').toLocaleString('default', { month: 'long' });
+          %>
+            <tr>
+              <td><strong><%= monthName %> <%= currentYear %></strong></td>
+              <td>PKR <%= data.charged.toLocaleString() %></td>
+              <td class="success">PKR <%= data.paid.toLocaleString() %></td>
+              <td class="<%= data.balance > 0 ? 'danger' : (data.balance < 0 ? 'success' : '') %>">
+                <strong>PKR <%= data.balance.toLocaleString() %></strong>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table></div>
+
+      <h2 style="margin:24px 0 12px">Transaction History</h2>
+      <% if (ledger.length === 0) { %><div class="empty-state"><p>No ledger entries. Add a charge below.</p></div>
+      <% } else { %>
+        <div class="table-wrap"><table class="data-table">
+          <thead><tr><th>Date</th><th>Fee Month</th><th>Type</th><th>Description</th><th>Amount</th><th>Balance After</th><th>By</th></tr></thead>
+          <tbody>
+            <% ledger.forEach(l => { %>
+              <tr>
+                <td><%= l.entry_date || l.created_at.slice(0,10) %></td>
+                <td><%= l.fee_month || '—' %></td>
+                <td><span class="badge badge-<%= l.entry_type === 'charge' ? 'danger' : 'success' %>"><%= l.entry_type %></span></td>
+                <td><%= l.description || '—' %><% if (l.due_date) { %> <span class="muted">(due <%= l.due_date %>)</span><% } %></td>
+                <td><span class="ledger-amount <%= l.amount > 0 ? 'positive' : 'negative' %>"><%= l.amount > 0 ? '+' : '' %><%= l.amount.toLocaleString() %></span></td>
+                <td><strong>PKR <%= l.running_balance.toLocaleString() %></strong></td>
+                <td><%= l.created_by_name || '—' %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table></div>
+      <% } %>
+
+      <h2 style="margin:24px 0 12px">Add Transaction</h2>
+
+      <details class="details-card">
+        <summary>💰 Receive Payment</summary>
+        <form method="POST" action="/payments/receive">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <input type="hidden" name="student_id" value="<%= student.id %>">
+          <div class="form-grid-3">
+            <div class="form-group"><label>Fee Month</label>
+              <input type="month" name="fee_month" value="<%= new Date().toISOString().slice(0,7) %>">
+            </div>
+            <div class="form-group"><label>Amount (PKR) *</label><input type="number" name="amount" required min="1" step="1"></div>
+            <div class="form-group"><label>Method *</label>
+              <select name="method" required>
+                <option value="cash">Cash</option><option value="bank">Bank Transfer</option>
+                <option value="easypaisa">Easypaisa</option><option value="jazzcash">JazzCash</option>
+                <option value="cheque">Cheque</option>
+              </select>
+            </div>
+          </div>
+          <button type="submit" class="btn-primary" style="width:auto">Receive Payment</button>
+        </form>
+      </details>
+
+      <details class="details-card">
+        <summary>📋 Add Fee Charge</summary>
+        <form method="POST" action="/fees/student/<%= student.id %>/charge">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <div class="form-grid-3">
+            <div class="form-group"><label>Fee Month</label>
+              <input type="month" name="fee_month" value="<%= new Date().toISOString().slice(0,7) %>">
+            </div>
+            <div class="form-group"><label>Amount (PKR) *</label><input type="number" name="amount" required min="1" step="1" value="<%= suggestedAmount %>"></div>
+            <div class="form-group"><label>Description *</label><input type="text" name="description" required maxlength="200" value="Monthly Fee"></div>
+          </div>
+          <button type="submit" class="btn-primary" style="width:auto">Add Charge</button>
+        </form>
+      </details>
+
+      <details class="details-card">
+        <summary>🎁 Apply Discount</summary>
+        <form method="POST" action="/fees/student/<%= student.id %>/discount">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <div class="form-grid-2">
+            <div class="form-group"><label>Amount (PKR) *</label><input type="number" name="amount" required min="1" step="1"></div>
+            <div class="form-group"><label>Description *</label><input type="text" name="description" required maxlength="200"></div>
+          </div>
+          <button type="submit" class="btn-primary" style="width:auto">Apply Discount</button>
+        </form>
+      </details>
+
+      <details class="details-card">
+        <summary>⚖️ Adjustment</summary>
+        <form method="POST" action="/fees/student/<%= student.id %>/adjustment">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <div class="form-grid-3">
+            <div class="form-group"><label>Direction *</label>
+              <select name="direction" required>
+                <option value="add">Add (increase owed)</option>
+                <option value="subtract">Subtract (decrease owed)</option>
+              </select>
+            </div>
+            <div class="form-group"><label>Amount (PKR) *</label><input type="number" name="amount" required min="1" step="1"></div>
+            <div class="form-group"><label>Description *</label><input type="text" name="description" required maxlength="200"></div>
+          </div>
+          <button type="submit" class="btn-primary" style="width:auto">Apply Adjustment</button>
+        </form>
+      </details>
+    </main>
+  </div>
+</body></html>
