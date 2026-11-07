@@ -5,6 +5,7 @@ import {
 } from '../services/batchSessionService.js';
 import { audit } from '../services/auditService.js';
 import { todayInTimezone } from '../config/timezone.js';
+import { todayInTimezone, nowTimeInTimezone } from '../config/timezone.js';
 
 export function index(req, res) {
   const batches = db.prepare('SELECT id, name FROM batches WHERE is_active = 1 ORDER BY id').all();
@@ -56,7 +57,7 @@ export function show(req, res) {
 
 export function start(req, res) {
   const sessionId = parseInt(req.params.id, 10);
-  const now = new Date().toTimeString().slice(0, 8);
+  const now = nowTimeInTimezone()
   try {
     startSession({ sessionId, userId: req.session.user.id, time: now });
     audit(req, { action: 'session_started', module: 'batch_session', recordId: sessionId });
@@ -69,7 +70,7 @@ export function start(req, res) {
 
 export function complete(req, res) {
   const sessionId = parseInt(req.params.id, 10);
-  const now = new Date().toTimeString().slice(0, 8);
+  const now = nowTimeInTimezone();
   const { topic, remarks } = req.body;
 
   try {

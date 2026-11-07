@@ -69,3 +69,37 @@ export async function postRestore(req, res) {
   }
   res.redirect('/backups');
 }
+import fs from 'fs';
+import { restoreUploadedBackup } from '../services/backupService.js'; // <-- Import
+
+export async function postUpload(req, res) {
+  if (req.session.user.role !== 'admin') {
+    req.session.flash = { type: 'error', message: 'Admin only.' };
+    return res.redirect('/backups');
+  }
+
+  if (!req.file) {
+    req.session.flash = { type: 'error', message: 'Please select a valid .sqlite file to upload.' };
+    return res.redirect('/backups');
+  }
+
+  try {
+    const result = await restoreUploadedBackup(req.file.path, req.session.user.id);
+    // Clean up temp file
+    try { fs.unlinkSync(req.file.path); } catch {}
+    
+    audit(req, {
+      action: 'database_restored_from_upload',
+      module: 'backup',
+      newValues: { pre_restore: result.preRestoreBackup },
+    });
+    req.session.flash = {
+      type: 'success',
+      message: `Database successfully restored from uploaded file. Safety backup: ${result.preRestoreBackup}`,
+    };
+  } catch (err) {
+    try { fs.unlinkSync(req.file.path); } catch {}
+    req.session.flash = { type: 'error', message: err.message };
+  }
+  res.redirect('/backups');
+}

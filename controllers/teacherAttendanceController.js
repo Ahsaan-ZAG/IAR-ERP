@@ -6,6 +6,7 @@ import {
 } from '../services/teacherAttendanceService.js';
 import { audit } from '../services/auditService.js';
 import { todayInTimezone } from '../config/timezone.js';
+import { todayInTimezone, nowTimeInTimezone } from '../config/timezone.js'; // <-- Ye line check karei
 
 export function index(req, res) {
   const date = req.query.date || todayInTimezone();
@@ -40,8 +41,8 @@ export function checkIn(req, res) {
     return res.redirect('/teacher-attendance');
   }
 
-  const today = todayInTimezone();
-  const now = new Date().toTimeString().slice(0, 8);
+    const today = todayInTimezone();
+    const now = nowTimeInTimezone();
 
   try {
     checkInTeacher({ userId: req.session.user.id, date: today, time: now });
@@ -67,7 +68,7 @@ export function checkOut(req, res) {
   }
 
   const today = todayInTimezone();
-  const now = new Date().toTimeString().slice(0, 8);
+const now = nowTimeInTimezone()
 
   try {
     checkOutTeacher({ userId: req.session.user.id, date: today, time: now });

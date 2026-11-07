@@ -58,3 +58,65 @@ export function getBatchCompletionStats(batchId, monthStart) {
     percentage: row.total_sessions ? Math.round((row.completed_sessions / row.total_sessions) * 100) : 0,
   };
 }
+
+export async function restoreUploadedBackup(uploadedPath, userId) {
+  // 1. Verify uploaded file
+  const src = new Database(uploadedPath, { readonly: true, fileMustExist: true });
+  const integrity = src.pragma('integrity_check', { simple: true });
+  if (integrity !== 'ok') {
+    src.close();
+    throw new Error(`Uploaded file integrity check failed: ${integrity}`);
+  }
+  const tables = src.prepare("SELECT name, sql FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'").all();
+  if (tables.length === 0) {
+    src.close();
+    throw new Error('Uploaded file contains no tables');
+  }
+  src.close();
+
+  // 2. Pre-upload safety backup
+  const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+  const preRestoreName = `pre-upload-${ts}.sqlite`;
+  const preRestorePath = path.join(BACKUP_DIR, preRestoreName);
+  await db.backup(preRestorePath);
+
+  db.prepare(`
+    INSERT INTO backup_logs (filename, status, integrity_check, created_by)
+    VALUES (?, 'success', 'pre-upload', ?)
+  `).run(preRestoreName, userId || null);
+
+  // 3. Copy data using ATTACH
+  db.pragma('foreign_keys = OFF');
+  try {
+    const escapedPath = uploadedPath.replace(/'/g, "''");
+    db.exec(`ATTACH DATABASE '${escapedPath}' AS restore_src`);
+
+    for (const { name, sql } of tables) {
+      const existsInMain = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name=?").get(name);
+      if (!existsInMain && sql) db.exec(sql);
+
+      const hasRows = db.prepare(`SELECT COUNT(*) AS c FROM restore_src.${name}`).get().c > 0;
+      if (hasRows) {
+        db.exec(`DELETE FROM main.${name}`);
+        db.exec(`INSERT INTO main.${name} SELECT * FROM restore_src.${name}`);
+      }
+    }
+
+    // Sequences
+    const seqExists = db.prepare("SELECT name FROM restore_src.sqlite_master WHERE name = 'sqlite_sequence'").get();
+    if (seqExists) {
+      try {
+        db.exec('DELETE FROM main.sqlite_sequence');
+        db.exec('INSERT INTO main.sqlite_sequence SELECT * FROM restore_src.sqlite_sequence');
+      } catch {}
+    }
+    db.exec('DETACH DATABASE restore_src');
+  } catch (err) {
+    try { db.exec('DETACH DATABASE restore_src'); } catch {}
+    throw new Error(`Upload restore failed: ${err.message}. Safety backup saved as ${preRestoreName}`);
+  } finally {
+    db.pragma('foreign_keys = ON');
+  }
+
+  return { preRestoreBackup: preRestoreName };
+}

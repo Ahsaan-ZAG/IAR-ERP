@@ -6,6 +6,13 @@ export function todayInTimezone() {
   }).format(new Date());
 }
 
+export function nowTimeInTimezone() {
+  return new Intl.DateTimeFormat('en-GB', {
+    timeZone: TIMEZONE, hour: '2-digit', minute: '2-digit', second: '2-digit',
+    hour12: false
+  }).format(new Date());
+}
+
 export function nowIsoUtc() {
   return new Date().toISOString();
 }

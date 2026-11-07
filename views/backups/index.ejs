@@ -51,6 +51,26 @@
         </table></div>
       <% } %>
 
+      <!-- NAYA: Upload SQLite File Card -->
+      <div class="form-card" style="margin-top:24px; max-width:100%;">
+        <h3 style="margin-bottom:12px; color:#F47B20;">Upload SQLite Database File</h3>
+        <p class="muted" style="font-size:13px; margin-bottom:16px;">
+          If your data is lost or empty, you can upload a <code>.sqlite</code> backup file here. 
+          The system will automatically take a safety backup of the current state before replacing it.
+        </p>
+        
+        <form method="POST" action="/backups/upload?_csrf=<%= csrfToken %>" enctype="multipart/form-data">
+          <div class="form-group">
+            <label>Select .sqlite file *</label>
+            <input type="file" name="backupFile" accept=".sqlite,.db" required 
+                   style="width:100%; padding:10px; background:#F9FAFB; border:1px dashed #E0E2E8; border-radius:8px;">
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn-primary" style="width:auto; background:#16A36A;">Upload & Restore</button>
+          </div>
+        </form>
+      </div>
+
       <dialog id="restoreDialog" class="modal-dialog">
         <form method="POST" action="/backups/restore">
           <input type="hidden" name="_csrf" value="<%= csrfToken %>">
