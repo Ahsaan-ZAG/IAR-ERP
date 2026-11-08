@@ -6,7 +6,6 @@ import { fileURLToPath } from 'url';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
-import compression from 'compression';
 import apiV1Routes from './routes/api/v1/index.js';
 import cors from 'cors';
 
@@ -56,7 +55,6 @@ app.use(helmet());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
-app.use(compression());
 app.use(cors());
 
 
