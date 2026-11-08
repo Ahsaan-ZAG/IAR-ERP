@@ -1,11 +1,7 @@
 import db from '../config/database.js';
-import {
-  listSessions, getSessionById, getSessionTeachers,
-  generateDailySessions, startSession, completeSession,
-} from '../services/batchSessionService.js';
+import { listSessions, getSessionById, getSessionTeachers, generateDailySessions, startSession, completeSession } from '../services/batchSessionService.js';
 import { audit } from '../services/auditService.js';
-import { todayInTimezone } from '../config/timezone.js';
-import { todayInTimezone, nowTimeInTimezone } from '../config/timezone.js';
+import { todayInTimezone, nowTimeInTimezone } from '../config/timezone.js'; // Bas ye ek line
 
 export function index(req, res) {
   const batches = db.prepare('SELECT id, name FROM batches WHERE is_active = 1 ORDER BY id').all();
