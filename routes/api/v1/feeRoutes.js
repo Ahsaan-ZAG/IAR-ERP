@@ -1,8 +1,6 @@
 import { Router } from 'express';
-import { getStudentFee, getPayments } from '../../../controllers/api/v1/feeController.js';
-
+import { getPayments, postPayment } from '../../../controllers/api/v1/feeController.js';
 const router = Router();
-router.get('/student/:id', getStudentFee);
 router.get('/payments', getPayments);
-
+router.post('/payments', postPayment);
 export default router;

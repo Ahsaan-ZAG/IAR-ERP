@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { getAttendance, getStudentAttendance } from '../../../controllers/api/v1/attendanceController.js';
+import { getAttendance, postAttendance } from '../../../controllers/api/v1/attendanceController.js';
 const router = Router();
 router.get('/', getAttendance);
-router.get('/student/:id', getStudentAttendance);
+router.post('/', postAttendance);
 export default router;
