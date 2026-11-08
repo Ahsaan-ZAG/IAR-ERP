@@ -4,10 +4,9 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import helmet from 'helmet';
+import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
-import apiV1Routes from './routes/api/v1/index.js';
-import cors from 'cors';
 
 import db from './config/database.js';
 import SqliteSessionStore from './config/sessionStore.js';
@@ -15,6 +14,7 @@ import { doubleCsrfProtection, generateCsrfToken } from './config/security.js';
 import { mobileReadOnly } from './middleware/mobileReadOnly.js';
 import { getUnreadCount } from './services/notificationService.js';
 
+// Routes
 import authRoutes from './routes/authRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
 import admissionRoutes from './routes/admissionRoutes.js';
@@ -44,6 +44,9 @@ import backupRoutes from './routes/backupRoutes.js';
 import invoiceRoutes from './routes/invoiceRoutes.js';
 import monthlyFeeRoutes from './routes/monthlyFeeRoutes.js';
 
+// API V1 Routes
+import apiV1Routes from './routes/api/v1/index.js';
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -51,12 +54,11 @@ const isProd = process.env.NODE_ENV === 'production';
 
 if (isProd) app.set('trust proxy', 1);
 
+app.use(cors()); // API ke liye CORS enabled
 app.use(helmet());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors());
-
 
 app.use(session({
   store: new SqliteSessionStore(db),
@@ -76,7 +78,14 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(doubleCsrfProtection);
+// ⚠️ FIX A: API ke liye CSRF bypass karein (JWT use hota hai wahan)
+app.use((req, res, next) => {
+  if (req.originalUrl.startsWith('/api/')) {
+    return next();
+  }
+  doubleCsrfProtection(req, res, next);
+});
+
 app.use(mobileReadOnly);
 
 app.use((req, res, next) => {
@@ -96,6 +105,7 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Health Check
 app.get('/health', (req, res) => {
   try {
     db.prepare('SELECT 1 AS ok').get();
@@ -105,15 +115,22 @@ app.get('/health', (req, res) => {
   }
 });
 
+// Root Redirect
 app.get('/', (req, res) => {
   if (req.session?.user) {
-    return res.redirect(
-      req.session.access_mode === 'mobile_readonly' ? '/mobile/dashboard' : '/dashboard'
-    );
+    return res.redirect(req.session.access_mode === 'mobile_readonly' ? '/mobile/dashboard' : '/dashboard');
   }
   res.redirect('/login');
 });
 
+// ==========================================
+// MOUNT ALL ROUTES
+// ==========================================
+
+// API ROUTES (Yahan CSRF nahi chalega)
+app.use('/api/v1', apiV1Routes);
+
+// WEB ROUTES (Yahan CSRF chalega)
 app.use('/', authRoutes);
 app.use('/', dashboardRoutes);
 app.use('/', admissionRoutes);
@@ -142,24 +159,32 @@ app.use('/', settingsRoutes);
 app.use('/', backupRoutes);
 app.use('/', invoiceRoutes);
 app.use('/', monthlyFeeRoutes);
-app.use('/', settingsRoutes);
-app.use('/', backupRoutes);
 
-app.use('/api/v1', apiV1Routes);
-
-app.use((req, res) => res.status(404).render('errors/404', { title: 'Not Found' }));
-
-app.use((err, req, res, next) => {
-  console.error('==== ERROR ====', req.method, req.originalUrl, err.message);
-  console.error(err.stack);
-  if (isProd) return res.status(500).render('errors/500', { title: 'Server Error' });
-  res.status(500).send(
-    `<h1 style="color:#DC4545">500 — ${err.message}</h1><pre>${err.stack}</pre>`
-  );
+// 404 Handler
+app.use((req, res) => {
+  res.status(404).render('errors/404', { title: 'Page Not Found' });
 });
 
+// ⚠️ FIX B: Global Error Handler (API ke liye JSON, Web ke liye HTML)
+app.use((err, req, res, next) => {
+  console.error('==== ERROR ====', req.method, req.originalUrl, err.message);
+  
+  // Agar request API ki hai, to HTML error page nahi balke JSON bhejein
+  if (req.originalUrl.startsWith('/api/')) {
+    return res.status(err.status || 500).json({
+      success: false,
+      message: err.message || 'Internal server error',
+      error: { code: 'SERVER_ERROR' }
+    });
+  }
 
-app.listen(PORT, () => {
+  // Web ke liye purana error page
+  if (isProd) return res.status(500).render('errors/500', { title: 'Server Error' });
+  res.status(500).send(`<h1 style="color:#DC4545">500 — ${err.message}</h1><pre>${err.stack}</pre>`);
+});
+
+// Start Server
+app.listen(PORT, '0.0.0.0', () => {
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   console.log('  Imam Ahmed Raza Academy — Management System');
   console.log('  Under the Supervision of Barkati Foundation Trust');
